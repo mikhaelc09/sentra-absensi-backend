@@ -4,7 +4,7 @@ import sequelize from '../config/database.js';
 class DPenggajian extends Model {}
 DPenggajian.init(
     {
-      id_lokasi:{
+      id:{
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true

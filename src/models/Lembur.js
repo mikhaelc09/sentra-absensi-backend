@@ -14,7 +14,7 @@ Lembur.init(
         allowNull: false,
       },
       status:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.SMALLINT,
         allowNull: false
       },
     },

@@ -40,8 +40,9 @@ Karyawan.init(
       keterangan:{
         type: DataTypes.TEXT,
       },
-      role: {
-        type: DataTypes.STRING(50),
+      is_admin: {
+        type: DataTypes.SMALLINT,
+        allowNull: false
       }
     },
     {
