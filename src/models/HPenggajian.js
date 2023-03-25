@@ -22,6 +22,7 @@ HPenggajian.init(
     {
       sequelize,
       modelName: 'HPenggajian',
+      tableName: 'HPenggajian',
       underscored: true,
       timestamps:false
     }

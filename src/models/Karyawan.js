@@ -47,6 +47,7 @@ Karyawan.init(
     {
       sequelize,
       modelName: 'Karyawan',
+      tableName: 'Karyawan',
       underscored: true,
       timestamps:false
     }

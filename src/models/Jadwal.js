@@ -21,6 +21,7 @@ Jadwal.init(
     {
       sequelize,
       modelName: 'Jadwal',
+      tableName: 'Jadwal',
       underscored: true,
       timestamps:false
     }

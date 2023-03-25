@@ -21,6 +21,7 @@ Jabatan.init(
     {
       sequelize,
       modelName: 'Jabatan',
+      tableName: 'Jabatan',
       underscored: true,
       timestamps:false
     }

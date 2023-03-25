@@ -17,6 +17,7 @@ Divisi.init(
     {
       sequelize,
       modelName: 'Divisi',
+      tableName: 'Divisi',
       underscored: true,
       timestamps:false
     }

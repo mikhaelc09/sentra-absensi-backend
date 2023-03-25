@@ -25,6 +25,7 @@ LokasiPenting.init(
     {
       sequelize,
       modelName: 'LokasiPenting',
+      tableName: 'LokasiPenting',
       underscored: true,
       timestamps:false
     }

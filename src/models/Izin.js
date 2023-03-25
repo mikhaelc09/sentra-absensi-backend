@@ -35,6 +35,7 @@ Izin.init(
     {
       sequelize,
       modelName: 'Izin',
+      tableName: 'Izin',
       underscored: true,
       timestamps:false
     }

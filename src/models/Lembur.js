@@ -21,6 +21,7 @@ Lembur.init(
     {
       sequelize,
       modelName: 'Lembur',
+      tableName: 'Lembur',
       underscored: true,
       timestamps:false
     }

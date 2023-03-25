@@ -24,6 +24,7 @@ DPenggajian.init(
     {
       sequelize,
       modelName: 'DPenggajian',
+      tableName: 'DPenggajian',
       underscored: true,
       timestamps:false
     }

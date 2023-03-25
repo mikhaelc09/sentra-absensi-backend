@@ -37,8 +37,9 @@ Absensi.init(
     {
       sequelize,
       modelName: 'Absensi',
+      tableName: 'Absensi',
       underscored: true,
-      timestamps:false
+      timestamps:false,
     }
 );
 export default Absensi;
