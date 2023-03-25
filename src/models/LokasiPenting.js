@@ -13,11 +13,11 @@ LokasiPenting.init(
         type: DataTypes.STRING(255),
         allowNull: false
       },
-      long:{
+      longitude:{
         type: DataTypes.FLOAT,
         allowNull: false
       },
-      lat:{
+      latitude:{
         type: DataTypes.FLOAT,
         allowNull: false
       }
