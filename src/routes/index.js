@@ -1,8 +1,9 @@
 import express from 'express';
+import {msg} from '../utils/index.js'
 import Karyawan from '../models/Karyawan.js';
 import authRoute from '../routes/auth.route.js';
-import {msg} from '../utils/index.js'
-import { router as userRouter } from './userRoutes.js';
+import userRoute from './user.route.js';
+import izinRoute from './izin.route.js';
 import { resetPassword } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -16,6 +17,8 @@ router.use('/auth', authRoute)
 
 router.post('/reset-password', resetPassword)
 
-router.use('/profile', userRouter)
+router.use('/profile', UserRoute)
+
+router.use('/izin', IzinRoute)
 
 export {router};

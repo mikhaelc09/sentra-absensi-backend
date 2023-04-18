@@ -5,9 +5,9 @@ class Karyawan extends Model {}
 Karyawan.init(
     {
       nik:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING(10),
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: false
       },
       nama:{
         type: DataTypes.STRING(50),

@@ -9,12 +9,16 @@ Izin.init(
         primaryKey: true,
         autoIncrement: true
       },
-      waktu_mulai:{
+      karyawan: {
+        type: DataTypes.STRING(10),
+        allowNull: false
+      },
+      tanggal_mulai:{
         type: 'TIMESTAMP',
         defaultValue: literal('CURRENT_TIMESTAMP'),
         allowNull: false
       },
-      waktu_selesai:{
+      tanggal_selesai:{
         type: 'TIMESTAMP',
         defaultValue: literal('CURRENT_TIMESTAMP'),
         allowNull: false
@@ -22,6 +26,14 @@ Izin.init(
       keterangan:{
         type: DataTypes.TEXT,
         allowNull: false
+      },
+      lokasi: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      pengganti: {
+        type: DataTypes.STRING(10),
+        allowNull: true
       },
       status:{
         type: DataTypes.SMALLINT,
