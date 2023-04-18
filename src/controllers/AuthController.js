@@ -35,6 +35,7 @@ const login = async (req, res) => {
         return res.status(400).send(msg("Password salah!"))
     }
     const token = jwt.sign({
+        nik: user.nik,
         email: user.email,
         nama: user.nama,
         jabatan: user.id_jabatan
