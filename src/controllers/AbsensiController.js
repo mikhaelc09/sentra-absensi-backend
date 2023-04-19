@@ -13,8 +13,8 @@ const getJamKerja = async (req,res) => {
 
     const absensi = Absensi.findAll({
         where: {
-            karyawan: nik,
             [Op.and]: [
+                { karyawan: nik },
                 sequelize.where(sequelize.fn('date', sequelize.col('createdAt')), '=', today)
             ]
         },
@@ -55,8 +55,8 @@ const getRiwayatHarian = async (req,res) => {
 
     const absensi = Absensi.findAll({
         where: {
-            karyawan: nik,
             [Op.and]: [
+                { karyawan: nik },
                 sequelize.where(sequelize.fn('date', sequelize.col('createdAt')), '=', today)
             ]
         },
@@ -76,12 +76,13 @@ const getRiwayatHarian = async (req,res) => {
 
 const getLaporanBulanan = async (req,res) => {
     const nik = req.user.nik
-    const bulan = req.params.bulan
+    const { tahun, bulan } = req.params
 
     const absensi = Absensi.findAll({
         where: {
-            karyawan: nik,
             [Op.and]: [
+                { karyawan: nik },
+                sequelize.where(sequelize.fn('EXTRACT(YEAR from "createdAt")'), '=', tahun),
                 sequelize.where(sequelize.fn('EXTRACT(MONTH from "createdAt")'), '=', bulan)
             ]
         },
@@ -97,12 +98,42 @@ const getLaporanBulanan = async (req,res) => {
             let tanggal = `${tempHari}, ${tempTgl}`
 
             let jam = moment(absen.createdAt).format('HH:mm')
+            //INI BLM SLESAI
         })
     }
 }
 
 const addAbsensi = async (req,res) => {
     const nik = req.user.nik
+    const { is_lembur, keterangan } = req.body
+
+    let lat = null
+    let long = null
+    navigator.geolocation.getCurrentPosition((position)=>{
+        lat = position.coords.latitude
+        long = position.coords.longitude
+        // console.log(position.timestamp)
+        // console.log(position.coords.accuracy)
+    })
+
+    let status = 0
+    //cek location valid gk
+    if(lat!=null && long!=null){
+
+    }
+
+    const absensi = Absensi.create({
+        karyawan: nik,
+        longitude: long,
+        latitude: lat,
+        is_lembur: (is_lembur) ? is_lembur : null,
+        keterangan: (keterangan) ? keterangan : null,
+        status: status 
+    })
+
+    return res.status(201).send({
+        data: absensi
+    })
 }
 
 export {
