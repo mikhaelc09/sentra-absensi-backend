@@ -4,6 +4,7 @@ import Karyawan from '../models/Karyawan.js';
 import authRoute from '../routes/auth.route.js';
 import userRoute from './user.route.js';
 import izinRoute from './izin.route.js';
+import absensiRoute from './absensi.route.js';
 import { resetPassword } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -17,8 +18,10 @@ router.use('/auth', authRoute)
 
 router.post('/reset-password', resetPassword)
 
-router.use('/profile', UserRoute)
+router.use('/profile', userRoute)
 
-router.use('/izin', IzinRoute)
+router.use('/izin', izinRoute)
+
+route.use('/absensi', absensiRoute)
 
 export {router};

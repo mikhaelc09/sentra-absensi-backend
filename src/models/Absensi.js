@@ -9,9 +9,8 @@ Absensi.init(
         primaryKey: true,
         autoIncrement: true
       },
-      waktu:{
-        type: 'TIMESTAMP',
-        defaultValue: literal('CURRENT_TIMESTAMP'),
+      karyawan: {
+        type: DataTypes.STRING(10),
         allowNull: false
       },
       longitude:{
@@ -32,6 +31,9 @@ Absensi.init(
       status:{
         type: DataTypes.SMALLINT,
         allowNull: false,
+      },
+      createdAt: {
+        type: DataTypes.DATE,
       }
     },
     {

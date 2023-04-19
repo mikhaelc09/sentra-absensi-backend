@@ -1,10 +1,8 @@
 import express from 'express'
 import Joi from 'joi'
-import * as dotenv from 'dotenv';
-dotenv.config()
 
 import { msg } from '../utils/index.js'
-import Izin from '../models/Izin.js';
+import Izin from '../models/Izin.js'
 
 const getAllIzin = async (req,res) => {
     const nik = req.user.nik
