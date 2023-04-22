@@ -4,8 +4,9 @@ import { getAllIzin, getDetailIzin, addIzin } from '../controllers/IzinControlle
 
 const izinRoute = express.Router()
 
-izinRoute.get('/', checkToken, getAllIzin)
+izinRoute.get('/', getAllIzin)
 izinRoute.get('/:id_izin', checkToken, getDetailIzin)
-izinRoute.post('/', checkToken, addIzin)
+// izinRoute.post('/', checkToken, addIzin)
+izinRoute.post('/', addIzin)
 
 export default izinRoute

@@ -32,10 +32,14 @@ Izin.init(
       },
       waktu_selesai: {
         allowNull: false,
-        type: DataTypes.TIME
+        type: DataTypes.DATEONLY
       },
       keterangan: {
         allowNull: false,
+        type: DataTypes.DATEONLY
+      },
+      lokasi: {
+        allowNull: true,
         type: DataTypes.TEXT
       },
       status: {

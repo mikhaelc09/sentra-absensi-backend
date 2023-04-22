@@ -1,12 +1,14 @@
 import express from 'express'
 import Joi from 'joi'
+import moment from 'moment'
 
 import { msg } from '../utils/index.js'
 import Izin from '../models/Izin.js'
 import Karyawan from '../models/Karyawan.js'
 
 const getAllIzin = async (req,res) => {
-    const nik = req.user.nik
+    // const nik = req.user.nik
+    const nik = 1
 
     const izin = await Izin.findAll({
         where: {
@@ -48,14 +50,16 @@ const getDetailIzin = async (req,res) => {
 }
 
 const addIzin = async (req,res) => {
-    const nik = req.user.nik
-    let { tanggal_mulai, tanggal_selesai, keterangan, lokasi, pengganti, jenis } = req.body
+    // const nik = req.user.nik
+    const nik = 1
+    let { waktu_mulai, waktu_selesai, keterangan, lokasi, pengganti, jenis } = req.body
+    // console.log(req.body)
 
     const schema = Joi.object({
-        tanggal_mulai: Joi.date().required().label('Tanggal Mulai').messages({
+        waktu_mulai: Joi.date().required().label('Tanggal Mulai').messages({
             'any.required': '{{#label}} harus diisi',
         }),
-        tanggal_selesai: Joi.date().required().label('Tanggal Selesai').messages({
+        waktu_selesai: Joi.date().required().label('Tanggal Selesai').messages({
             'any.required': '{{#label}} harus diisi',
         }),
         keterangan: Joi.string().required().label('Keterangan').messages({
@@ -78,7 +82,7 @@ const addIzin = async (req,res) => {
         return res.status(400).send(msg(validationErr))
     }
 
-    if(jenis==0 && !lokasi){
+    if(jenis==2 && !lokasi){
         return res.status(400).send(msg('Lokasi harus diisi'))
     }
     else if(jenis==1 && !pengganti){
@@ -93,12 +97,12 @@ const addIzin = async (req,res) => {
     }
 
     const izin = await Izin.create({
-        karyawan: nik,
-        tanggal_mulai,
-        tanggal_selesai,
+        nik_pengaju: nik,
+        waktu_mulai,
+        waktu_selesai,
         keterangan,
         lokasi,
-        pengganti,
+        nik_pengganti: pengganti,
         status: 0,
         jenis
     })
