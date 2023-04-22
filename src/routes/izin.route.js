@@ -1,6 +1,6 @@
 import express from 'express'
-import { checkToken } from '../utils'
-import { getAllIzin, getDetailIzin, addIzin } from '../controllers/IzinController'
+import { checkToken } from '../utils/index.js'
+import { getAllIzin, getDetailIzin, addIzin } from '../controllers/IzinController.js'
 
 const izinRoute = express.Router()
 

@@ -5,7 +5,7 @@ import authRoute from '../routes/auth.route.js';
 import userRoute from './user.route.js';
 import izinRoute from './izin.route.js';
 import absensiRoute from './absensi.route.js';
-import { resetPassword } from '../controllers/userController.js';
+import { resetPassword } from '../controllers/UserController.js';
 
 const router = express.Router();
 

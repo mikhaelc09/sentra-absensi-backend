@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 const checkToken = (req, res, next) => {
     let token = req.headers['x-auth-token']
     if (!token) {

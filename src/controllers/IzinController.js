@@ -13,7 +13,7 @@ const getAllIzin = async (req,res) => {
         }
     })
 
-    return res.status(200).send(izin)
+    return res.status(200).send({izin: izin})
 }
 
 const getDetailIzin = async (req,res) => {
@@ -21,7 +21,7 @@ const getDetailIzin = async (req,res) => {
 
     const izin = Izin.findByPk(id)
 
-    return res.status(200).send(izin)
+    return res.status(200).send({izin: izin})
 }
 
 const addIzin = async (req,res) => {
@@ -82,7 +82,7 @@ const addIzin = async (req,res) => {
     
     return res.status(201).send({
         message: 'Berhasil menambahkan izin',
-        data: izin
+        izin: izin
     })
 }
 

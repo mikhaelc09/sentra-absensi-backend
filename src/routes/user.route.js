@@ -1,6 +1,6 @@
 import express from 'express'
-import { getKaryawan, changePassword } from '../controllers/userController'
-import { checkToken } from '../utils'
+import { getKaryawan, changePassword } from '../controllers/UserController.js'
+import { checkToken } from '../utils/index.js'
 
 const userRoute = express.Router()
 

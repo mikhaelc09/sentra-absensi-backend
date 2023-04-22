@@ -1,6 +1,6 @@
 import express from 'express'
-import { checkToken } from '../utils'
-import { getJamKerja, getRiwayatHarian, getLaporanBulanan, addAbsensi } from '../controllers/AbsensiController'
+import { checkToken } from '../utils/index.js'
+import { getJamKerja, getRiwayatHarian, getLaporanBulanan, addAbsensi } from '../controllers/AbsensiController.js'
 
 const absensiRoute = express.Router()
 
