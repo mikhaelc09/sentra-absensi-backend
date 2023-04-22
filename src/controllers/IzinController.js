@@ -3,14 +3,16 @@ import Joi from 'joi'
 
 import { msg } from '../utils/index.js'
 import Izin from '../models/Izin.js'
+import Karyawan from '../models/Karyawan.js'
 
 const getAllIzin = async (req,res) => {
     const nik = req.user.nik
 
-    const izin = Izin.findAll({
+    const izin = await Izin.findAll({
         where: {
-            karyawan: nik
-        }
+            nik_pengaju: nik
+        },
+        attributes: ['id', 'waktu_mulai', 'waktu_selesai', 'keterangan', 'status', 'jenis']
     })
 
     return res.status(200).send({izin: izin})
@@ -19,9 +21,30 @@ const getAllIzin = async (req,res) => {
 const getDetailIzin = async (req,res) => {
     const id = req.params.id_izin
 
-    const izin = Izin.findByPk(id)
+    const izin = await Izin.findByPk(id)
+    const pengganti = await Karyawan.findByPk(izin.nik_pengganti)
+    
+    const jenis = (izin.jenis==1) ? 'Cuti' : 'MCU'
+    const status = 'Menunggu'
+    if(izin.status==2){
+        status = 'Disetujui'
+    }
+    else if(izin.status==3){
+        status = 'Ditolak'
+    }
 
-    return res.status(200).send({izin: izin})
+    return res.status(200).send({
+        izin: {
+            id: izin.id,
+            waktu_mulai: izin.waktu_mulai,
+            waktu_selesai: izin.waktu_selesai,
+            keterangan: izin.keterangan,
+            status: status,
+            jenis: jenis,
+            pengganti: pengganti.nama,
+            lokasi: izin.lokasi
+        }
+    })
 }
 
 const addIzin = async (req,res) => {

@@ -11,7 +11,7 @@ const getJamKerja = async (req,res) => {
     const date = new Date()
     const today = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
 
-    const absensi = Absensi.findAll({
+    const absensi = await Absensi.findAll({
         where: {
             [Op.and]: [
                 { karyawan: nik },
@@ -53,7 +53,7 @@ const getRiwayatHarian = async (req,res) => {
     const date = new Date()
     const today = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
 
-    const absensi = Absensi.findAll({
+    const absensi = await Absensi.findAll({
         where: {
             [Op.and]: [
                 { karyawan: nik },
@@ -78,7 +78,7 @@ const getLaporanBulanan = async (req,res) => {
     const nik = req.user.nik
     const { tahun, bulan } = req.params
 
-    const absensi = Absensi.findAll({
+    const absensi = await Absensi.findAll({
         where: {
             [Op.and]: [
                 { karyawan: nik },
@@ -122,7 +122,7 @@ const addAbsensi = async (req,res) => {
 
     }
 
-    const absensi = Absensi.create({
+    const absensi = await Absensi.create({
         karyawan: nik,
         longitude: long,
         latitude: lat,
