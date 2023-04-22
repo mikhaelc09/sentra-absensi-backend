@@ -1,33 +1,55 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
-class LokasiPenting extends Model {}
+class LokasiPenting extends Model {
+  static associate(models) {
+    this.hasMany(models.Jadwal, {
+      foreignKey: 'id_lokasi',
+    });
+  }
+}
 LokasiPenting.init(
     {
-      id_lokasi:{
-        type: DataTypes.INTEGER,
+      id: {
+        allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
-        autoIncrement: true
+        type: DataTypes.INTEGER
       },
-      nama:{
-        type: DataTypes.STRING(255),
-        allowNull: false
+      nama: {
+        allowNull: false,
+        type: DataTypes.STRING(255)
       },
-      longitude:{
-        type: DataTypes.FLOAT,
-        allowNull: false
+      longitude: {
+        allowNull: false,
+        type: DataTypes.FLOAT
       },
-      latitude:{
-        type: DataTypes.FLOAT,
-        allowNull: false
+      latitude: {
+        allowNull: false,
+        type: DataTypes.FLOAT
+      },
+      created_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      updated_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+      },
+      deleted_at:{
+        allowNull: true,
+        type: DataTypes.DATE
       }
     },
     {
       sequelize,
-      modelName: 'LokasiPenting',
-      tableName: 'LokasiPenting',
-      underscored: true,
-      timestamps:false
+    modelName: 'LokasiPenting',
+    timestamps: true,
+    paranoid: true,
+    tableName: 'lokasi_penting',
+    underscored: true,
     }
 );
 export default LokasiPenting;

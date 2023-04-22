@@ -22,6 +22,6 @@ router.use('/profile', userRoute)
 
 router.use('/izin', izinRoute)
 
-route.use('/absensi', absensiRoute)
+router.use('/absensi', absensiRoute)
 
 export {router};

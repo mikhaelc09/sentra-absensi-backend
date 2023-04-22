@@ -1,14 +1,8 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
-class Jadwal extends Model {
-  static associate(models) {
-    // define association here
-    this.belongsTo(models.Karyawan, { foreignKey: 'id_karyawan' });
-    this.belongsTo(models.LokasiPenting, { foreignKey: 'id_lokasi' });
-  }
-}
-Jadwal.init(
+class Constant extends Model {}
+Constant.init(
     {
       id: {
         allowNull: false,
@@ -16,46 +10,49 @@ Jadwal.init(
         primaryKey: true,
         type: DataTypes.INTEGER
       },
-      nik: {
-        allowNull: false,
-        type: DataTypes.STRING(10),
-        // references: {model: 'karyawan', key: 'nik'},
+      name: {
+        type: DataTypes.STRING(20),
+        allowNull: false
       },
-      id_lokasi: {
+      type: {
+        type: DataTypes.SMALLINT,
         allowNull: false,
-        type: DataTypes.INTEGER,
-        // references: {model: 'lokasi_penting', key: 'id'}
+        comment: '1: string, 2: integer, 3: float'
       },
-      hari: {
-        allowNull: false,
-        type: DataTypes.STRING(10)
+      stringvalue: {
+        type: DataTypes.STRING(30),
       },
-      jam_kerja: {
-        allowNull: false,
+      intvalue: {
+        type: DataTypes.INTEGER
+      },
+      floatvalue: {
         type: DataTypes.FLOAT
       },
-      created_at: {
+      shortdesc: {
+        type: DataTypes.STRING(50)
+      },
+      createdAt: {
         allowNull: false,
         type: DataTypes.DATE,
         defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
         type: DataTypes.DATE,
         defaultValue: sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
       },
-      deleted_at:{
+      deletedAt: {
         allowNull: true,
         type: DataTypes.DATE
       }
     },
     {
       sequelize,
-      modelName: 'Jadwal',
+      modelName: 'Constant',
       timestamps: true,
       paranoid: true,
-      tableName: 'jadwal',
+      tableName: 'constants',
       underscored: true,
     }
 );
-export default Jadwal;
+export default Constant;

@@ -1,55 +1,73 @@
 import { Model, DataTypes, literal } from 'sequelize';
 import sequelize from '../config/database.js';
 
-class Izin extends Model {}
+class Izin extends Model {
+  static associate(models) {
+    // define association here
+    this.belongsTo(models.Karyawan, {foreignKey: 'nik_pengaju', as: 'pengaju'});
+    this.belongsTo(models.Karyawan, {foreignKey: 'nik_pengganti', as: 'pengganti'});
+  }
+}
 Izin.init(
     {
-      id:{
-        type: DataTypes.INTEGER,
+      id: {
+        allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
-        autoIncrement: true
+        type: DataTypes.INTEGER
       },
-      karyawan: {
+      nik_pengaju:{
+        allowNull: false,
         type: DataTypes.STRING(10),
-        allowNull: false
+        // references: {model: 'karyawan', key: 'nik'}
       },
-      tanggal_mulai:{
-        type: 'TIMESTAMP',
-        defaultValue: literal('CURRENT_TIMESTAMP'),
-        allowNull: false
-      },
-      tanggal_selesai:{
-        type: 'TIMESTAMP',
-        defaultValue: literal('CURRENT_TIMESTAMP'),
-        allowNull: false
-      },
-      keterangan:{
-        type: DataTypes.TEXT,
-        allowNull: false
-      },
-      lokasi: {
-        type: DataTypes.STRING(255),
-        allowNull: true
-      },
-      pengganti: {
+      nik_pengganti:{
+        allowNull: false,
         type: DataTypes.STRING(10),
-        allowNull: true
+        // references: {model: 'karyawan', key: 'nik'}
       },
-      status:{
-        type: DataTypes.SMALLINT,
-        allowNull: false
+      waktu_mulai: {
+        allowNull: false,
+        type: DataTypes.TIME
+      },
+      waktu_selesai: {
+        allowNull: false,
+        type: DataTypes.TIME
+      },
+      keterangan: {
+        allowNull: false,
+        type: DataTypes.TEXT
+      },
+      status: {
+        allowNull: false,
+        type: DataTypes.SMALLINT
       },
       jenis: {
-        type: DataTypes.SMALLINT,
-        allowNull: false
+        allowNull: false,
+        type: DataTypes.SMALLINT
+      },
+      created_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      updated_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+      },
+      deleted_at:{
+        allowNull: true,
+        type: DataTypes.DATE
       }
     },
     {
       sequelize,
       modelName: 'Izin',
-      tableName: 'Izin',
+      timestamps: true,
+      paranoid: true,
+      tableName: 'izin',
       underscored: true,
-      timestamps:false
     }
 );
 export default Izin;

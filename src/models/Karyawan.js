@@ -1,56 +1,111 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
-class Karyawan extends Model {}
+class Karyawan extends Model {
+  static associate(models) {
+    this.belongsTo(models.Divisi, {
+      foreignKey: 'id_divisi',
+    });
+    this.hasMany(models.Jadwal, {
+      foreignKey: 'nik',
+    })
+    this.hasMany(models.Lembur, {
+      foreignKey: 'nik',
+    })
+    this.hasMany(models.Absensi, {
+      foreignKey: 'nik',
+    })
+    this.hasMany(models.Izin, {
+      foreignKey: 'nik_pengaju',
+      as: 'pengaju'
+    })
+    this.hasMany(models.Izin, {
+      foreignKey: 'nik_pengganti',
+      as: 'pengganti'
+    })
+    this.hasMany(models.HPenggajian, {
+      foreignKey: 'nik',
+    })
+  }
+}
 Karyawan.init(
     {
-      nik:{
-        type: DataTypes.STRING(10),
+      nik: {
         primaryKey: true,
-        autoIncrement: false
+        allowNull: false,
+        type: DataTypes.STRING(10)
       },
-      nama:{
-        type: DataTypes.STRING(50),
-        allowNull: false
+      nama: {
+        allowNull: false,
+        type: DataTypes.STRING(50)
       },
-      email:{
-        type: DataTypes.STRING(50),
-        allowNull: false
+      email: {
+        allowNull: false,
+        type: DataTypes.STRING(50)
       },
-      password:{
-        type: DataTypes.STRING(255),
-        allowNull: false
+      password: {
+        allowNull: false,
+        type: DataTypes.STRING(255)
       },
-      alamat:{
-        type: DataTypes.TEXT,
-        allowNull: false
+      alamat: {
+        allowNull: false,
+        type: DataTypes.TEXT
       },
-      tanggal_lahir:{
-        type: DataTypes.DATE,
-        allowNull: false
+      tanggal_lahir: {
+        allowNull: false,
+        type: DataTypes.DATE
       },
-      no_telp:{
-        type: DataTypes.STRING(15),
-        allowNull: false
+      no_telp: {
+        allowNull: false,
+        type: DataTypes.STRING(15)
       },
-      status:{
-        type: DataTypes.SMALLINT,
-        allowNull: false
+      no_rekening: {
+        allowNull: false,
+        type: DataTypes.STRING(15)
       },
-      keterangan:{
-        type: DataTypes.TEXT,
+      nama_rekening: {
+        allowNull: false,
+        type: DataTypes.STRING(50)
+      },
+      id_divisi: {
+        allownull: false,
+        type: DataTypes.INTEGER,
+        // references: {model: 'divisi', key: 'id'}
+      },
+      status: {
+        allowNull: false,
+        type: DataTypes.SMALLINT
+      },
+      keterangan: {
+        allowNull: false,
+        type: DataTypes.TEXT
       },
       is_admin: {
-        type: DataTypes.SMALLINT,
-        allowNull: false
+        allowNull: false,
+        type: DataTypes.SMALLINT
+      },
+      created_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      updated_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+      },
+      deleted_at:{
+        allowNull: true,
+        type: DataTypes.DATE
       }
     },
     {
       sequelize,
       modelName: 'Karyawan',
-      tableName: 'Karyawan',
+      timestamps: true,
+      paranoid: true,
+      tableName: 'karyawan',
       underscored: true,
-      timestamps:false
     }
 );
 export default Karyawan;

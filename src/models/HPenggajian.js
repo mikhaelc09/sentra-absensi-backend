@@ -1,30 +1,60 @@
 import { Model, DataTypes,literal } from 'sequelize';
 import sequelize from '../config/database.js';
 
-class HPenggajian extends Model {}
+class HPenggajian extends Model {
+  static associate(models) {
+    // define association here
+    this.belongsTo(models.Karyawan, {
+      foreignKey: 'nik',
+    })
+    this.hasMany( models.DPenggajian, {
+      foreignKey: 'id_header',
+    })
+  }
+}
 HPenggajian.init(
     {
-      id:{
-        type: DataTypes.INTEGER,
+      id: {
+        allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
-        autoIncrement: true
+        type: DataTypes.INTEGER
       },
-      tanggal:{
-        type: 'TIMESTAMP',
-        defaultValue: literal('CURRENT_TIMESTAMP'),
-        allowNull: false
+      nik:{
+        allowNull: false,
+        type: DataTypes.STRING(10),
+        // references: {model: 'karyawan', key: 'nik'}
       },
-      total:{
-        type: DataTypes.INTEGER,
-        allowNull: false
+      tanggal: {
+        allowNull: false,
+        type: DataTypes.TIME
       },
+      total: {
+        allowNull: false,
+        type: DataTypes.INTEGER
+      },
+      created_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      updated_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+      },
+      deleted_at:{
+        allowNull: true,
+        type: DataTypes.DATE
+      }
     },
     {
       sequelize,
       modelName: 'HPenggajian',
-      tableName: 'HPenggajian',
+      timestamps: true,
+      paranoid: true,
+      tableName: 'h_penggajian',
       underscored: true,
-      timestamps:false
     }
 );
 export default HPenggajian;
