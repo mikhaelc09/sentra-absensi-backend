@@ -28,7 +28,7 @@ Izin.init(
       },
       waktu_mulai: {
         allowNull: false,
-        type: DataTypes.TIME
+        type: DataTypes.DATEONLY
       },
       waktu_selesai: {
         allowNull: false,
@@ -36,7 +36,7 @@ Izin.init(
       },
       keterangan: {
         allowNull: false,
-        type: DataTypes.DATEONLY
+        type: DataTypes.TEXT
       },
       lokasi: {
         allowNull: true,
