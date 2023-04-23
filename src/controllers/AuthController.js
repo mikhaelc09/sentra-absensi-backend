@@ -1,4 +1,4 @@
-import { msg } from "../utils/index.js"
+import { msg, removeCookieIfExists, setCookie } from "../utils/index.js"
 import Karyawan from "../models/Karyawan.js"
 import Joi from "joi"
 
@@ -34,14 +34,20 @@ const login = async (req, res) => {
     if(!isPasswordValid){
         return res.status(400).send(msg("Password salah!"))
     }
+
     const token = jwt.sign({
         nik: user.nik,
         email: user.email,
         nama: user.nama,
-        jabatan: user.id_jabatan
+        divisi: user.id_divisi
     }, process.env.JWT_SECRET, {
         expiresIn: '1d'
     })
+
+    //save token to cookie
+    removeCookieIfExists('token')
+    setCookie('token', token, 1)
+
     return res.status(200).send({
         message: "Login berhasil",
         user: user.nama,

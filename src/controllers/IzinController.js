@@ -49,11 +49,27 @@ const getDetailIzin = async (req,res) => {
     })
 }
 
+const getKaryawanPengganti = async (req,res) => {
+    const id_divisi = req.user.divisi
+    const nik = req.user.nik
+
+    const karyawan = await Karyawan.findAll({
+        where: {
+            id_divisi: id_divisi,
+            nik: {
+                [Op.ne]: nik
+            }
+        },
+        attributes: ['nik', 'nama']
+    })
+
+    return res.status(200).send({ karyawan: karyawan })
+}
+
 const addIzin = async (req,res) => {
     // const nik = req.user.nik
     const nik = 1
     let { waktu_mulai, waktu_selesai, keterangan, lokasi, pengganti, jenis } = req.body
-    // console.log(req.body)
 
     const schema = Joi.object({
         waktu_mulai: Joi.date().required().label('Tanggal Mulai').messages({
@@ -96,6 +112,8 @@ const addIzin = async (req,res) => {
         pengganti = null
     }
 
+    // console.log(req.body)
+
     const izin = await Izin.create({
         nik_pengaju: nik,
         waktu_mulai,
@@ -114,5 +132,5 @@ const addIzin = async (req,res) => {
 }
 
 export {
-    getAllIzin, getDetailIzin, addIzin
+    getAllIzin, getDetailIzin, getKaryawanPengganti, addIzin
 }

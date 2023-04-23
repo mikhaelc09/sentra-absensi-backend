@@ -22,7 +22,7 @@ Izin.init(
         // references: {model: 'karyawan', key: 'nik'}
       },
       nik_pengganti:{
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(10),
         // references: {model: 'karyawan', key: 'nik'}
       },
