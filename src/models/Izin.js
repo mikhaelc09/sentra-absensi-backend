@@ -45,12 +45,12 @@ Izin.init(
       status: {
         allowNull: false,
         type: DataTypes.SMALLINT,
-        comment: '0: Belum disetujui, 1: Disetujui, 2: Ditolak'
+        comment: '1: Menunggu, 2: Disetujui, 3: Ditolak'
       },
       jenis: {
         allowNull: false,
         type: DataTypes.SMALLINT,
-        comment: '0: Cuti, 1: MCU'
+        comment: '1: Cuti, 2: MCU'
       },
       created_at: {
         allowNull: false,

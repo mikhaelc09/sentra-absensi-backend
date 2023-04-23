@@ -29,7 +29,7 @@ Lembur.init(
       status: {
         allowNull: false,
         type: DataTypes.SMALLINT,
-        comment: '0: Belum disetujui, 1: Disetujui, 2: Ditolak'
+        comment: '0: Menunggu, 1: Disetujui, 2: Ditolak'
       },
       created_at: {
         allowNull: false,

@@ -1,11 +1,14 @@
 import express from 'express'
 import Joi from 'joi'
 import moment from 'moment'
+import axios from 'axios'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 import { msg } from '../utils/index.js'
 import Absensi from '../models/Absensi.js'
 
-const getJamKerja = async (req,res) => {
+const getOverview = async (req,res) => {
     const nik = req.user.nik
 
     const date = new Date()
@@ -39,7 +42,7 @@ const getJamKerja = async (req,res) => {
     }
     
     return res.status(200).send({
-        data: {
+        overview: {
             jamMasuk: jamMasuk,
             jamKeluar: jamKeluar,
             jamKerja: jamKerja
@@ -61,6 +64,7 @@ const getRiwayatHarian = async (req,res) => {
             ]
         },
         order: [['createdAt', 'ASC']],
+        attributes: [['createdAt', 'jam'], 'status'] //kurang alamat + kota
     })
 
     if(absensi.length>0){
@@ -70,7 +74,7 @@ const getRiwayatHarian = async (req,res) => {
     }
 
     return res.status(200).send({
-        data: absensi
+        riwayat: absensi
     })
 }
 
@@ -118,9 +122,11 @@ const addAbsensi = async (req,res) => {
 
     let status = 0
     //cek location valid gk
+    let at = ''
     if(lat!=null && long!=null){
-
+        at = `${lat},${long}`
     }
+    let location = await axios.get(`https://revgeocode.search.hereapi.com/v1/revgeocode?at=${at}&lang=en-US&apiKey=${process.env.HERE_API_KEY}`)
 
     const absensi = await Absensi.create({
         karyawan: nik,
@@ -137,5 +143,5 @@ const addAbsensi = async (req,res) => {
 }
 
 export {
-    getJamKerja, getRiwayatHarian, getLaporanBulanan, addAbsensi
+    getOverview, getRiwayatHarian, getLaporanBulanan, addAbsensi
 }
