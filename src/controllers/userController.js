@@ -5,12 +5,22 @@ dotenv.config()
 
 import { msg } from '../utils/index.js'
 import Karyawan from '../models/Karyawan.js'
+import Divisi from '../models/Divisi.js';
 
 const getKaryawan = async (req,res) => {
     const nik = req.user.nik
 
-    const karyawan = await Karyawan.findByPk(nik)
-    return res.status(200).send(karyawan)
+    const karyawan = await Karyawan.findByPk(nik, {
+        attributes: [
+            nik, nama, email, alamat, no_telp, tanggal_lahir,
+            [Sequelize.col('Divisi.nama'), 'divisi'],
+        ],
+        include: {
+            model: Divisi,
+            attributes: []
+        }
+    })
+    return res.status(200).send({karyawan: karyawan})
 }
 
 const changePassword = async (req,res) => {
