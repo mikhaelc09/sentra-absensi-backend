@@ -39,7 +39,8 @@ Absensi.init(
       },
       status: {
         allowNull: false,
-        type: DataTypes.SMALLINT
+        type: DataTypes.SMALLINT,
+        comment: '0: Belum disetujui, 1: Disetujui, 2: Ditolak'
       },
       created_at: {
         allowNull: false,
