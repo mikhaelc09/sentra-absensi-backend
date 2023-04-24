@@ -5,8 +5,8 @@ import { getAllIzin, getDetailIzin, addIzin, getKaryawanPengganti } from '../con
 const izinRoute = express.Router()
 
 izinRoute.get('/', checkToken, getAllIzin)
-izinRoute.get('/:id_izin', checkToken, getDetailIzin)
 izinRoute.get('/pengganti', checkToken, getKaryawanPengganti)
+izinRoute.get('/:id_izin', checkToken, getDetailIzin)
 izinRoute.post('/', checkToken, addIzin)
 
 export default izinRoute

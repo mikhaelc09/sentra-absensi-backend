@@ -1,18 +1,19 @@
 import express from 'express'
 import Joi from 'joi'
-import * as dotenv from 'dotenv';
+import { Sequelize } from 'sequelize'
+import * as dotenv from 'dotenv'
 dotenv.config()
 
 import { msg } from '../utils/index.js'
 import Karyawan from '../models/Karyawan.js'
-import Divisi from '../models/Divisi.js';
+import Divisi from '../models/Divisi.js'
 
 const getKaryawan = async (req,res) => {
     const nik = req.user.nik
 
     const karyawan = await Karyawan.findByPk(nik, {
         attributes: [
-            nik, nama, email, alamat, no_telp, tanggal_lahir,
+            'nik', 'nama', 'email', 'alamat', 'no_telp', 'tanggal_lahir',
             [Sequelize.col('Divisi.nama'), 'divisi'],
         ],
         include: {

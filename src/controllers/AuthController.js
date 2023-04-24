@@ -53,7 +53,7 @@ const login = async (req, res) => {
 
     //save token to cookie
     res.cookie("token", token, {
-        httpOnly: true,
+        httpOnly: false,
         expires: DateTime.now().plus({ days: 1 }).toJSDate(),
     })
 

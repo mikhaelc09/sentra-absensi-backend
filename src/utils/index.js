@@ -1,10 +1,12 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+import jwt from 'jsonwebtoken'
+
 const checkToken = (req, res, next) => {
     let token = req.headers['x-auth-token']
     if (!token) {
-        return res.status(400).send('Unauthorized')
+        return res.status(401).send('Unauthorized')
     }
 
     try {

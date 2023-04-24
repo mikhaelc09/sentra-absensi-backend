@@ -2,6 +2,7 @@ import express from 'express'
 import Joi from 'joi'
 import moment from 'moment'
 import axios from 'axios'
+import { Sequelize, Op } from 'sequelize'
 import * as dotenv from 'dotenv'
 dotenv.config()
 

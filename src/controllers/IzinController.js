@@ -1,6 +1,7 @@
 import express from 'express'
 import Joi from 'joi'
 import moment from 'moment'
+import { Sequelize, Op } from 'sequelize'
 
 import { msg } from '../utils/index.js'
 import Izin from '../models/Izin.js'
@@ -24,7 +25,14 @@ const getDetailIzin = async (req,res) => {
     const id = req.params.id_izin
 
     const izin = await Izin.findByPk(id)
-    const pengganti = await Karyawan.findByPk(izin.nik_pengganti)
+    if(izin==null){
+        return res.status(404).send(msg('Izin tidak ditemukan'))
+    }
+
+    if(izin.nik_pengganti!=null){
+        const pengganti = await Karyawan.findByPk(izin.nik_pengganti)
+    }
+    
     
     const jenis = (izin.jenis==1) ? 'Cuti' : 'MCU'
     const status = 'Menunggu'
