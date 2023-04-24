@@ -40,6 +40,8 @@ const login = async (req, res) => {
         return res.status(400).send(msg("Password salah!"))
     }
 
+    const divisi = await Divisi.findByPk(user.id_divisi)
+
     const token = jwt.sign({
         nik: user.nik,
         email: user.email,
@@ -52,10 +54,8 @@ const login = async (req, res) => {
     //save token to cookie
     res.cookie("token", token, {
         httpOnly: true,
-        expires: DateTime.now().plus({ day: 1 }).toJSDate(),
-    });
-
-    const divisi = await Divisi.findByPk(user.id_divisi)
+        expires: DateTime.now().plus({ days: 1 }).toJSDate(),
+    })
 
     return res.status(200).send({
         message: "Login berhasil",

@@ -8,6 +8,5 @@ izinRoute.get('/', checkToken, getAllIzin)
 izinRoute.get('/:id_izin', checkToken, getDetailIzin)
 izinRoute.get('/pengganti', checkToken, getKaryawanPengganti)
 izinRoute.post('/', checkToken, addIzin)
-// izinRoute.post('/', addIzin)
 
 export default izinRoute
