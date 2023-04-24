@@ -1,6 +1,11 @@
-import { msg, removeCookieIfExists, setCookie } from "../utils/index.js"
+import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
+import { DateTime } from 'luxon'
+
+import { msg } from "../utils/index.js"
 import Karyawan from "../models/Karyawan.js"
 import Joi from "joi"
+import Divisi from "../models/Divisi.js"
 
 const login = async (req, res) => {
     const schema = Joi.object({
@@ -9,8 +14,8 @@ const login = async (req, res) => {
             "any.required": "Email harus diisi",
             "string.empty": "Email harus diisi",
         }),
-        password: Joi.string().min(8).required().messages({
-            "string.min": "Password minimal 8 karakter",
+        password: Joi.string().required().messages({
+            // "string.min": "Password minimal 8 karakter",
             "any.required": "Password harus diisi",
             "string.empty": "Password harus diisi",
         })
@@ -45,16 +50,29 @@ const login = async (req, res) => {
     })
 
     //save token to cookie
-    removeCookieIfExists('token')
-    setCookie('token', token, 1)
+    res.cookie("token", token, {
+        httpOnly: true,
+        expires: DateTime.now().plus({ day: 1 }).toJSDate(),
+    });
+
+    const divisi = await Divisi.findByPk(user.id_divisi)
 
     return res.status(200).send({
         message: "Login berhasil",
-        user: user.nama,
+        user: {
+            nik: user.nik,
+            nama: user.nama,
+            divisi: divisi.nama
+        },
         token: token
     })
 }
 
+const logout = async (req,res) => {
+    res.clearCookie("token")
+    return res.status(200).send(msg("Logout berhasil"))
+}
+
 export {
-    login
+    login, logout
 }
