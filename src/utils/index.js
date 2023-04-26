@@ -19,7 +19,7 @@ const checkToken = (req, res, next) => {
 }
 
 const msg = (message) => {
-    return { message }
+    return { message: message }
 }
 
 const errmsg = (message) => {

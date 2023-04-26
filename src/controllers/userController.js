@@ -39,7 +39,7 @@ const changePassword = async (req,res) => {
             'any.required': '{{#label}} harus diisi',
             'string.empty': '{{#label}} harus diisi',
         }),
-        confpass: Joi.string().min(8).required().equal(Joi.ref('newpass')).label('Konfirmasi Password').messages({
+        confpass: Joi.string().min(8).required().label('Konfirmasi Password').messages({
             'string.min': '{{#label}} minimal 8 karakter',
             'any.required': '{{#label}} harus diisi',
             'string.empty': '{{#label}} harus diisi',
@@ -53,41 +53,24 @@ const changePassword = async (req,res) => {
         return res.status(400).send(msg(validationErr))
     }
 
+    const user = Karyawan.findByPk(nik)
+
+    const isPasswordValid = await bcrypt.compare(oldpass, user.password)
+    if(!isPasswordValid){
+        return res.status(400).send(msg("Password lama salah!"))
+    }
+    if(newpass !== confpass){
+        return res.status(400).send(msg('Password dan konfirmasi password harus sama'))
+    }
+
     const karyawan = await Karyawan.findByPk(nik)
-    karyawan.password = bcrypt.hashSync(newpass, 12)
-    await karyawan.save()
+    const hashedPass = bcrypt.hashSync(password, 12)
+    await karyawan.update({
+        password: hashedPass
+    })
     return res.status(200).send(msg('Berhasil mengubah password'))
 }
 
-const resetPassword = async (req,res) => {
-    const nik = req.user.nik
-    const { password, confpass } = req.body
-    const schema = Joi.object({
-        password: Joi.string().min(8).required().label('Password').messages({
-            'string.min': '{{#label}} minimal 8 karakter',
-            'any.required': '{{#label}} harus diisi',
-            'string.empty': '{{#label}} harus diisi',
-        }),
-        confpass: Joi.string().min(8).required().equal(Joi.ref('pass')).label('Konfirmasi Password').messages({
-            'string.min': '{{#label}} minimal 8 karakter',
-            'any.required': '{{#label}} harus diisi',
-            'string.empty': '{{#label}} harus diisi',
-            'string.equal': '{{#label}} harus sama dengan password baru'
-        })
-    })
-    try{
-        await schema.validateAsync(req.body)
-    }
-    catch(validationErr){
-        return res.status(400).send(msg(validationErr))
-    }
-
-    const karyawan = await Karyawan.findByPk(nik)
-    karyawan.password = bcrypt.hashSync(password, 12)
-    await karyawan.save()
-    return res.status(200).send(msg('Berhasil reset password'))
-}
-
 export {
-    getKaryawan, changePassword, resetPassword
+    getKaryawan, changePassword
 }

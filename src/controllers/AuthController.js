@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { DateTime } from 'luxon'
+import nodemailer from 'nodemailer'
+import hbs from 'nodemailer-express-handlebars'
+import path from 'path'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 import { msg } from "../utils/index.js"
 import Karyawan from "../models/Karyawan.js"
@@ -73,6 +78,130 @@ const logout = async (req,res) => {
     return res.status(200).send(msg("Logout berhasil"))
 }
 
+const forgotPassword = async (req,res) => {
+    const { email } = req.body
+    const schema = Joi.object({
+        email: Joi.string().email().required().messages({
+            "string.email": "Email tidak valid",
+            "any.required": "Email harus diisi",
+            "string.empty": "Email harus diisi",
+        })
+    })
+    try{
+        await schema.validateAsync(req.body)
+    }
+    catch(validationErr){
+        return res.status(400).send(msg(validationErr))
+    }
+
+    const user = await Karyawan.findOne({
+        where:{
+            email: email,
+        }
+    })
+    if(!user){
+        return res.status(404).send(msg('Email tersebut tidak terdaftar'))
+    }
+
+    const token = jwt.sign({
+        nik: user.nik,
+        email: user.email,
+        nama: user.nama
+    }, process.env.JWT_SECRET, {
+        expiresIn: '10m'
+    })
+
+    //send email
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL,
+          pass: process.env.APP_PASSWORD
+        }
+    })
+
+    const handlebarOptions = {
+        viewEngine: {
+            partialsDir: path.resolve('./src/views/'),
+            defaultLayout: false,
+        },
+        viewPath: path.resolve('./src/views/'),
+    }
+
+    transporter.use('compile', hbs(handlebarOptions))
+
+    var mailOptions = {
+        from: `"Absensi Sentra Medika Surabaya" <${process.env.EMAIL}>`, // sender address
+        to: user.email, // list of receivers
+        subject: 'Reset Password Absensi Sentra Medika Surabaya',
+        template: 'email', // the name of the template file i.e email.handlebars
+        context:{
+            name: user.nama,
+            action_url: `http://localhost:5173/check-token?token=${token}`
+        }
+    }
+    
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log(error)
+        } else {
+            console.log('Email sent: ' + info.response)
+            return res.status(200).send(msg('Email reset password berhasil dikirim'))
+        }
+    })
+}
+
+const checkResetToken = async (req,res) => {
+    let token = req.body.token
+    if (!token) {
+        return res.status(401).send('Unauthorized')
+    }
+
+    try {
+        const user = jwt.verify(token, process.env.JWT_SECRET)
+        return res.status(200).send({
+            message: 'Token valid',
+            nik: user.nik
+        })
+    } catch (err) {
+        return res.status(400).send('Invalid API Key')
+    }
+}
+
+const resetPassword = async (req,res) => {
+    const { nik, password, confpass } = req.body
+    const schema = Joi.object({
+        nik: Joi.string().required(),
+        password: Joi.string().min(8).required().label('Password').messages({
+            'string.min': '{{#label}} minimal 8 karakter',
+            'any.required': '{{#label}} harus diisi',
+            'string.empty': '{{#label}} harus diisi',
+        }),
+        confpass: Joi.string().min(8).required().label('Konfirmasi Password').messages({
+            'string.min': '{{#label}} minimal 8 karakter',
+            'any.required': '{{#label}} harus diisi',
+            'string.empty': '{{#label}} harus diisi',
+        })
+    })
+    try{
+        await schema.validateAsync(req.body)
+    }
+    catch(validationErr){
+        return res.status(400).send(msg(validationErr))
+    }
+
+    if(password !== confpass){
+        return res.status(400).send(msg('Password dan konfirmasi password harus sama'))
+    }
+
+    const karyawan = await Karyawan.findByPk(nik)
+    const hashedPass = bcrypt.hashSync(password, 12)
+    await karyawan.update({
+        password: hashedPass
+    })
+    return res.status(200).send(msg('Berhasil reset password'))
+}
+
 export {
-    login, logout
+    login, logout, forgotPassword, resetPassword, checkResetToken
 }
