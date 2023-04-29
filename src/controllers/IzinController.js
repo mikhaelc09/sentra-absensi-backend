@@ -17,6 +17,13 @@ const getAllIzin = async (req,res) => {
         attributes: ['id', 'waktu_mulai', 'waktu_selesai', 'keterangan', 'status', 'jenis']
     })
 
+    console.log(izin)
+
+    izin.forEach((i) => {
+        i.dataValues.waktu_mulai = moment(i.dataValues.waktu_mulai, 'YYYY-MM-DD').format('DD MMMM YYYY')
+        i.dataValues.waktu_selesai = moment(i.dataValues.waktu_selesai, 'YYYY-MM-DD').format('DD MMMM YYYY')
+    })
+
     return res.status(200).send({izin: izin})
 }
 
@@ -42,6 +49,9 @@ const getDetailIzin = async (req,res) => {
     else if(izin.status==3){
         status = 'Ditolak'
     }
+
+    izin.dataValues.waktu_mulai = moment(izin.dataValues.waktu_mulai, 'YYYY-MM-DD').format('DD MMMM YYYY')
+    izin.dataValues.waktu_selesai = moment(izin.dataValues.waktu_selesai, 'YYYY-MM-DD').format('DD MMMM YYYY')
 
     return res.status(200).send({
         izin: {
@@ -128,7 +138,7 @@ const addIzin = async (req,res) => {
         keterangan,
         lokasi,
         nik_pengganti: pengganti,
-        status: 0,
+        status: 1,
         jenis
     })
     

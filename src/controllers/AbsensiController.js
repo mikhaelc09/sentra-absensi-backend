@@ -61,7 +61,7 @@ const getRiwayatHarian = async (req,res) => {
         where: {
             [Op.and]: [
                 { karyawan: nik },
-                sequelize.where(sequelize.fn('date', sequelize.col('createdAt')), '=', today)
+                Sequelize.where(Sequelize.fn('date', sequelize.col('createdAt')), '=', today)
             ]
         },
         order: [['createdAt', 'ASC']],
@@ -87,8 +87,8 @@ const getLaporanBulanan = async (req,res) => {
         where: {
             [Op.and]: [
                 { karyawan: nik },
-                sequelize.where(sequelize.fn('EXTRACT(YEAR from "createdAt")'), '=', tahun),
-                sequelize.where(sequelize.fn('EXTRACT(MONTH from "createdAt")'), '=', bulan)
+                Sequelize.where(Sequelize.fn('EXTRACT(YEAR from "createdAt")'), '=', tahun),
+                Sequelize.where(Sequelize.fn('EXTRACT(MONTH from "createdAt")'), '=', bulan)
             ]
         },
         order: [['createdAt', 'ASC']],
