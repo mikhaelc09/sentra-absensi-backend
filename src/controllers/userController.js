@@ -8,6 +8,16 @@ import { msg } from '../utils/index.js'
 import Karyawan from '../models/Karyawan.js'
 import Divisi from '../models/Divisi.js'
 
+const getUser = async (req,res) => {
+    return res.status(200).send({
+        user: {
+            nik: req.user.nik,
+            nama: req.user.nama,
+            divisi: req.user.divisi
+        }
+    })
+}
+
 const getKaryawan = async (req,res) => {
     const nik = req.user.nik
 
@@ -72,5 +82,5 @@ const changePassword = async (req,res) => {
 }
 
 export {
-    getKaryawan, changePassword
+    getUser, getKaryawan, changePassword
 }

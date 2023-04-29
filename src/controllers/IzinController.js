@@ -1,15 +1,14 @@
 import express from 'express'
 import Joi from 'joi'
 import moment from 'moment'
-import { Sequelize, Op } from 'sequelize'
+import { Op } from 'sequelize'
 
 import { msg } from '../utils/index.js'
 import Izin from '../models/Izin.js'
 import Karyawan from '../models/Karyawan.js'
 
 const getAllIzin = async (req,res) => {
-    // const nik = req.user.nik
-    const nik = 1
+    const nik = req.user.nik
 
     const izin = await Izin.findAll({
         where: {
@@ -25,12 +24,13 @@ const getDetailIzin = async (req,res) => {
     const id = req.params.id_izin
 
     const izin = await Izin.findByPk(id)
+    let pengganti = null
     if(izin==null){
         return res.status(404).send(msg('Izin tidak ditemukan'))
     }
 
     if(izin.nik_pengganti!=null){
-        const pengganti = await Karyawan.findByPk(izin.nik_pengganti)
+        pengganti = await Karyawan.findByPk(izin.nik_pengganti)
     }
     
     
@@ -75,8 +75,7 @@ const getKaryawanPengganti = async (req,res) => {
 }
 
 const addIzin = async (req,res) => {
-    // const nik = req.user.nik
-    const nik = 1
+    const nik = req.user.nik
     let { waktu_mulai, waktu_selesai, keterangan, lokasi, pengganti, jenis } = req.body
 
     const schema = Joi.object({
