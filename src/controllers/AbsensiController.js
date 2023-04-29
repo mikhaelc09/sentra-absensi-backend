@@ -3,6 +3,7 @@ import Joi from 'joi'
 import moment from 'moment'
 import axios from 'axios'
 import { Sequelize, Op } from 'sequelize'
+import sequelize from '../config/database.js'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
@@ -19,7 +20,7 @@ const getOverview = async (req,res) => {
         where: {
             [Op.and]: [
                 { karyawan: nik },
-                sequelize.where(sequelize.fn('date', sequelize.col('createdAt')), '=', today)
+                Sequelize.where(Sequelize.fn('date', Sequelize.col('createdAt')), '=', today)
             ]
         },
         order: [['createdAt', 'ASC']],
@@ -61,7 +62,7 @@ const getRiwayatHarian = async (req,res) => {
         where: {
             [Op.and]: [
                 { karyawan: nik },
-                Sequelize.where(Sequelize.fn('date', sequelize.col('createdAt')), '=', today)
+                Sequelize.where(Sequelize.fn('date', Sequelize.col('createdAt')), '=', today)
             ]
         },
         order: [['createdAt', 'ASC']],

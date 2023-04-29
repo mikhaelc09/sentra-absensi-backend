@@ -1,7 +1,8 @@
 import express from 'express'
 import Joi from 'joi'
 import moment from 'moment'
-import { Op } from 'sequelize'
+import { Sequelize, Op } from 'sequelize'
+import sequelize from '../config/database.js'
 
 import { msg } from '../utils/index.js'
 import Izin from '../models/Izin.js'
@@ -16,8 +17,6 @@ const getAllIzin = async (req,res) => {
         },
         attributes: ['id', 'waktu_mulai', 'waktu_selesai', 'keterangan', 'status', 'jenis']
     })
-
-    console.log(izin)
 
     izin.forEach((i) => {
         i.dataValues.waktu_mulai = moment(i.dataValues.waktu_mulai, 'YYYY-MM-DD').format('DD MMMM YYYY')
@@ -64,6 +63,41 @@ const getDetailIzin = async (req,res) => {
             pengganti: pengganti.nama,
             lokasi: izin.lokasi
         }
+    })
+}
+
+const getSisaCuti = async (req,res) => {
+    const nik = req.user.nik
+
+    let sisa_cuti = 10
+
+    const today = new Date()
+
+    const izin = await Izin.findAll({
+        where: {
+            [Op.and]: [
+                { nik_pengaju: nik },
+                { jenis: 1 },
+                sequelize.where(
+                    sequelize.literal(`MONTH(created_at) = ${today.getMonth() + 1} AND YEAR(created_at) = ${today.getFullYear()}`),
+                    true
+                )
+            ]
+        },
+    })
+
+    if(izin.length>0){
+        izin.forEach((i) => {
+            const mulai = moment(i.waktu_mulai, 'YYYY-MM-DD')
+            const selesai = moment(i.waktu_selesai, 'YYYY-MM-DD')
+            const jmlh_hari = selesai.diff(mulai, 'days') + 1
+
+            sisa_cuti -= jmlh_hari
+        })
+    }
+
+    return res.status(200).send({
+        sisa_cuti: sisa_cuti
     })
 }
 
@@ -149,5 +183,5 @@ const addIzin = async (req,res) => {
 }
 
 export {
-    getAllIzin, getDetailIzin, getKaryawanPengganti, addIzin
+    getAllIzin, getDetailIzin, getSisaCuti, getKaryawanPengganti, addIzin
 }
