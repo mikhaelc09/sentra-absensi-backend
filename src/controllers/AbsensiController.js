@@ -20,7 +20,10 @@ const getOverview = async (req,res) => {
         where: {
             [Op.and]: [
                 { karyawan: nik },
-                Sequelize.where(Sequelize.fn('date', Sequelize.col('createdAt')), '=', today)
+                sequelize.where(
+                    sequelize.literal(`created_at = ${today}`),
+                    true
+                )
             ]
         },
         order: [['createdAt', 'ASC']],
@@ -62,7 +65,10 @@ const getRiwayatHarian = async (req,res) => {
         where: {
             [Op.and]: [
                 { karyawan: nik },
-                Sequelize.where(Sequelize.fn('date', Sequelize.col('createdAt')), '=', today)
+                sequelize.where(
+                    sequelize.literal(`created_at = ${today}`),
+                    true
+                )
             ]
         },
         order: [['createdAt', 'ASC']],
@@ -71,7 +77,7 @@ const getRiwayatHarian = async (req,res) => {
 
     if(absensi.length>0){
         absensi.forEach((absen) => {
-            absen.createdAt = moment(absen.createdAt).format('HH:mm:ss')
+            absen.createdAt = moment(absen.dataValues.createdAt).format('HH:mm:ss')
         })
     }
 
@@ -88,8 +94,10 @@ const getLaporanBulanan = async (req,res) => {
         where: {
             [Op.and]: [
                 { karyawan: nik },
-                Sequelize.where(Sequelize.fn('EXTRACT(YEAR from "createdAt")'), '=', tahun),
-                Sequelize.where(Sequelize.fn('EXTRACT(MONTH from "createdAt")'), '=', bulan)
+                sequelize.where(
+                    sequelize.literal(`MONTH(created_at) = ${bulan} AND YEAR(created_at) = ${tahun}`),
+                    true
+                )
             ]
         },
         order: [['createdAt', 'ASC']],
@@ -99,11 +107,11 @@ const getLaporanBulanan = async (req,res) => {
     let hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
     if(absensi.length>0){
         absensi.forEach((absen) => {
-            let tempTgl = moment(absen.createdAt).format('DD MMM YYYY')
-            let tempHari = hari[moment(absen.createdAt).day()]
+            let tempTgl = moment(absen.dataValues.createdAt).format('DD MMM YYYY')
+            let tempHari = hari[moment(absen.dataValues.createdAt).day()]
             let tanggal = `${tempHari}, ${tempTgl}`
 
-            let jam = moment(absen.createdAt).format('HH:mm')
+            let jam = moment(absen.dataValues.createdAt).format('HH:mm')
             //INI BLM SLESAI
         })
     }
