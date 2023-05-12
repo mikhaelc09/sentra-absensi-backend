@@ -60,7 +60,7 @@ const getDetailIzin = async (req,res) => {
             keterangan: izin.keterangan,
             status: status,
             jenis: jenis,
-            pengganti: pengganti.nama,
+            pengganti: (pengganti)?pengganti.nama:'',
             lokasi: izin.lokasi
         }
     })
