@@ -9,6 +9,10 @@ dotenv.config()
 
 import { msg } from '../utils/index.js'
 import Absensi from '../models/Absensi.js'
+import Jadwal from '../models/Jadwal.js'
+import LokasiPenting from '../models/LokasiPenting.js'
+
+const day = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS","JUMAT", "SABTU"]
 
 const getOverview = async (req,res) => {
     const nik = req.user.nik
@@ -119,31 +123,41 @@ const getLaporanBulanan = async (req,res) => {
 
 const addAbsensi = async (req,res) => {
     const nik = req.user.nik
-    const { is_lembur, keterangan } = req.body
-
-    let lat = null
-    let long = null
-    navigator.geolocation.getCurrentPosition((position)=>{
-        lat = position.coords.latitude
-        long = position.coords.longitude
-        // console.log(position.timestamp)
-        // console.log(position.coords.accuracy)
-    })
+    console.log(req.user);
+    const { is_lembur, keterangan, coord } = req.body
 
     let status = 0
     //cek location valid gk
     let at = ''
-    if(lat!=null && long!=null){
-        at = `${lat},${long}`
+    if(coord.lng!=null && coord.lat!=null){
+        at = `${coord.lat},${coord.lng}`
     }
-    let location = await axios.get(`https://revgeocode.search.hereapi.com/v1/revgeocode?at=${at}&lang=en-US&apiKey=${process.env.HERE_API_KEY}`)
+    console.log('Location:',at)
+    const currentDay = day((new Date()).getDay())
+
+    // get location name from jadwal
+    const jadwal = await Jadwal.findOne({
+        where: {
+            nik: nik,
+            hari: currentDay
+        }
+    })
+    if(jadwal){
+        const lokasi = await LokasiPenting.findByPk(jadwal.id_lokasi)
+        const lokasiAbsen = await axios.get(`https://autosuggest.search.hereapi.com/v1/autosuggest?at=${at}&limit=10&lang=id&q=${lokasi.nama}&apiKey=${process.env.HERE_API_KEY}`)
+        if(lokasiAbsen.items.length > 0){
+            status = lokasiAbsen.items[0].distance < 2000
+        }
+    }
+
+    console.log(location.data)
 
     const absensi = await Absensi.create({
-        karyawan: nik,
-        longitude: long,
-        latitude: lat,
-        is_lembur: (is_lembur) ? is_lembur : null,
-        keterangan: (keterangan) ? keterangan : null,
+        nik: nik,
+        longitude: coord.lng,
+        latitude: coord.lat,
+        is_lembur: (is_lembur) ? is_lembur : 0,
+        keterangan: (keterangan) ? keterangan : '',
         status: status 
     })
 
