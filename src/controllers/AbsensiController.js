@@ -9,47 +9,47 @@ dotenv.config()
 
 import { msg } from '../utils/index.js'
 import Absensi from '../models/Absensi.js'
+import Jadwal from '../models/Jadwal.js'
+import LokasiPenting from '../models/LokasiPenting.js'
+
+const day = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS","JUMAT", "SABTU"]
 
 const getOverview = async (req,res) => {
     const nik = req.user.nik
 
     const date = new Date()
-    const today = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
+    const today = date.toISOString().slice(0,10)
 
     const absensi = await Absensi.findAll({
         where: {
+            nik,
             [Op.and]: [
-                { karyawan: nik },
                 sequelize.where(
-                    sequelize.literal(`created_at = ${today}`),
+                    sequelize.literal(`DATE(created_at) = '${today}'`),
                     true
                 )
-            ]
+            ],
         },
-        order: [['createdAt', 'ASC']],
+        order: [['created_at', 'ASC']],
     })
-
-    let jamMasuk = (absensi.length == 0) ? null : absensi[0].createdAt
-    jamMasuk = moment(jamMasuk).format('HH:mm')
-    let jamKeluar = (absensi.length <= 1) ? null : absensi[absensi.length-1].createdAt
-    jamKeluar = moment(jamKeluar).format('HH:mm')
+    
+    let jamMasuk = (absensi.length == 0) ? null : absensi[0].created_at
+    let jamKeluar = (absensi.length <= 1) ? null : absensi[absensi.length-1].created_at
+    jamMasuk = moment(jamMasuk)
+    jamKeluar = moment(jamKeluar)
 
     let jamKerja = null
     if(jamMasuk!=null && jamKeluar!=null){
-        let hourDiff = jamMasuk.hours() - jamKeluar.hours()
-        let minDiff = jamMasuk.minutes() - jamKeluar.minutes()
-        if(minDiff > 60){
-            hourDiff += 1
-            minDiff -= 60
-        }
+        let hourDiff = jamKeluar.diff(jamMasuk, 'hours')
+        let minDiff = jamKeluar.diff(jamMasuk, 'minutes')
 
         jamKerja = `${hourDiff}:${minDiff}`
     }
     
     return res.status(200).send({
         overview: {
-            jamMasuk: jamMasuk,
-            jamKeluar: jamKeluar,
+            jamMasuk: jamMasuk.format('HH:mm'),
+            jamKeluar: jamKeluar.format('HH:mm'),
             jamKerja: jamKerja
         }
     })
@@ -59,30 +59,34 @@ const getRiwayatHarian = async (req,res) => {
     const nik = req.user.nik
 
     const date = new Date()
-    const today = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
+    const today = date.toISOString().slice(0,10)
 
     const absensi = await Absensi.findAll({
         where: {
+            nik,
             [Op.and]: [
-                { karyawan: nik },
                 sequelize.where(
-                    sequelize.literal(`created_at = ${today}`),
+                    sequelize.literal(`DATE(created_at) = '${today}'`),
                     true
                 )
-            ]
+            ],
         },
-        order: [['createdAt', 'ASC']],
-        attributes: [['createdAt', 'jam'], 'status'] //kurang alamat + kota
+        order: [['created_at', 'ASC']],
+        attributes: [['created_at', 'jam'], 'status'] //kurang alamat + kota
     })
 
+    let formattedAbsensi = []
     if(absensi.length>0){
         absensi.forEach((absen) => {
-            absen.createdAt = moment(absen.dataValues.createdAt).format('HH:mm:ss')
+            formattedAbsensi.push({
+                jam:moment(absen.dataValues.jam).format('HH:mm:ss'),
+                status: absen.dataValues.status
+            })
         })
     }
 
     return res.status(200).send({
-        riwayat: absensi
+        riwayat: formattedAbsensi
     })
 }
 
@@ -100,18 +104,18 @@ const getLaporanBulanan = async (req,res) => {
                 )
             ]
         },
-        order: [['createdAt', 'ASC']],
+        order: [['created_at', 'ASC']],
     })
 
     const retAbsensi = []
     let hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
     if(absensi.length>0){
         absensi.forEach((absen) => {
-            let tempTgl = moment(absen.dataValues.createdAt).format('DD MMM YYYY')
-            let tempHari = hari[moment(absen.dataValues.createdAt).day()]
+            let tempTgl = moment(absen.dataValues.created_at).format('DD MMM YYYY')
+            let tempHari = hari[moment(absen.dataValues.created_at).day()]
             let tanggal = `${tempHari}, ${tempTgl}`
 
-            let jam = moment(absen.dataValues.createdAt).format('HH:mm')
+            let jam = moment(absen.dataValues.created_at).format('HH:mm')
             //INI BLM SLESAI
         })
     }
@@ -119,31 +123,41 @@ const getLaporanBulanan = async (req,res) => {
 
 const addAbsensi = async (req,res) => {
     const nik = req.user.nik
-    const { is_lembur, keterangan } = req.body
-
-    let lat = null
-    let long = null
-    navigator.geolocation.getCurrentPosition((position)=>{
-        lat = position.coords.latitude
-        long = position.coords.longitude
-        // console.log(position.timestamp)
-        // console.log(position.coords.accuracy)
-    })
+    console.log(req.user);
+    const { is_lembur, keterangan, coord } = req.body
 
     let status = 0
     //cek location valid gk
     let at = ''
-    if(lat!=null && long!=null){
-        at = `${lat},${long}`
+    if(coord.lng!=null && coord.lat!=null){
+        at = `${coord.lat},${coord.lng}`
     }
-    let location = await axios.get(`https://revgeocode.search.hereapi.com/v1/revgeocode?at=${at}&lang=en-US&apiKey=${process.env.HERE_API_KEY}`)
+    console.log('Location:',at)
+    const currentDay = day[(new Date()).getDay()]
+
+    // get location name from jadwal
+    const jadwal = await Jadwal.findOne({
+        where: {
+            nik: nik,
+            hari: currentDay
+        }
+    })
+    if(jadwal){
+        const lokasi = await LokasiPenting.findByPk(jadwal.id_lokasi)
+        const lokasiAbsen = await axios.get(`https://autosuggest.search.hereapi.com/v1/autosuggest?at=${at}&limit=10&lang=id&q=${lokasi.nama}&apiKey=${process.env.HERE_API_KEY}`)
+        if(lokasiAbsen.data.items.length > 0){
+            status = lokasiAbsen.data.items[0].distance < 2000
+        }
+    }
+
+    // console.log(location.data)
 
     const absensi = await Absensi.create({
-        karyawan: nik,
-        longitude: long,
-        latitude: lat,
-        is_lembur: (is_lembur) ? is_lembur : null,
-        keterangan: (keterangan) ? keterangan : null,
+        nik: nik,
+        longitude: coord.lng,
+        latitude: coord.lat,
+        is_lembur: (is_lembur) ? is_lembur : 0,
+        keterangan: (keterangan) ? keterangan : '',
         status: status 
     })
 
