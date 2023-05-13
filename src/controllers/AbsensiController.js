@@ -10,6 +10,7 @@ dotenv.config()
 import { msg } from '../utils/index.js'
 import Absensi from '../models/Absensi.js'
 import Jadwal from '../models/Jadwal.js'
+import Lembur from '../models/Lembur.js'
 import LokasiPenting from '../models/LokasiPenting.js'
 
 const day = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS","JUMAT", "SABTU"]
@@ -41,8 +42,8 @@ const getOverview = async (req,res) => {
 
     let jamKerja = null
     if(jamMasuk!='--:--' && jamKeluar!='--:--'){
-        let hourDiff = jamKeluar.diff(moment(jamMasuk), 'hours')
-        let minDiff = jamKeluar.diff(moment(jamKeluar), 'minutes')
+        let hourDiff = jamKeluar.diff(jamMasuk, 'hours')
+        let minDiff = jamKeluar.diff(jamMasuk, 'minutes')
 
         jamKerja = `${hourDiff}:${minDiff}`
     }
@@ -132,6 +133,10 @@ const addAbsensi = async (req,res) => {
     // console.log(req.user);
     const { is_lembur, keterangan, coord } = req.body
 
+    if(is_lembur && !keterangan){
+        return res.status(400).send(msg('Mohon isi keterangan lembur'))
+    }
+
     let status = 0
     //cek location valid gk
     let at = ''
@@ -166,6 +171,13 @@ const addAbsensi = async (req,res) => {
         keterangan: (keterangan) ? keterangan : '',
         status: status 
     })
+
+    if(is_lembur){
+        const lembur = await Lembur.create({
+            nik: nik,
+            status: 0
+        })
+    }
 
     return res.status(201).send({
         data: absensi

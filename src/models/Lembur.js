@@ -22,10 +22,6 @@ Lembur.init(
         type: DataTypes.STRING(10),
         // references: {model: 'karyawan', key: 'nik'}
       },
-      tanggal: {
-        allowNull: false,
-        type: DataTypes.DATE
-      },
       status: {
         allowNull: false,
         type: DataTypes.SMALLINT,
