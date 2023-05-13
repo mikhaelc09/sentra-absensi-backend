@@ -101,19 +101,6 @@ const getLaporanBulanan = async (req,res) => {
     const nik = req.user.nik
     const { tahun, bulan } = req.params
 
-    // const absensi = await Absensi.findAll({
-    //     where: {
-    //         [Op.and]: [
-    //             { karyawan: nik },
-    //             sequelize.where(
-    //                 sequelize.literal(`MONTH(created_at) = ${bulan} AND YEAR(created_at) = ${tahun}`),
-    //                 true
-    //             )
-    //         ]
-    //     },
-    //     order: [['created_at', 'ASC']],
-    // })
-
     const now = new Date()
     const lastMonth = now.getMonth() === 0 ? 12 : now.getMonth()
     const lastMonthYear = lastMonth === 12 ? now.getFullYear() - 1 : now.getFullYear()
