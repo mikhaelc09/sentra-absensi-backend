@@ -60,8 +60,8 @@ const getDetailIzin = async (req,res) => {
             keterangan: izin.keterangan,
             status: status,
             jenis: jenis,
-            pengganti: pengganti.nama!=null ? pengganti.nama : null,
-            lokasi: izin.lokasi!=null ? lokasi : null
+            pengganti: pengganti!=null ? pengganti.nama : null,
+            lokasi: izin.lokasi!=null ? izin.lokasi : null
         }
     })
 }

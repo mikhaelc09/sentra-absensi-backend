@@ -35,23 +35,29 @@ const getOverview = async (req,res) => {
     
     let jamMasuk = (absensi.length == 0) ? null : absensi[0].created_at
     let jamKeluar = (absensi.length <= 1) ? null : absensi[absensi.length-1].created_at
-    jamMasuk = moment(jamMasuk)
-    jamKeluar = moment(jamKeluar)
+
+    jamMasuk = jamMasuk!=null ? moment(jamMasuk) : '--:--'
+    jamKeluar = jamKeluar!=null ? moment(jamKeluar) : '--:--'
 
     let jamKerja = null
-    if(jamMasuk!=null && jamKeluar!=null){
-        let hourDiff = jamKeluar.diff(jamMasuk, 'hours')
-        let minDiff = jamKeluar.diff(jamMasuk, 'minutes')
+    if(jamMasuk!='--:--' && jamKeluar!='--:--'){
+        let hourDiff = jamKeluar.diff(moment(jamMasuk), 'hours')
+        let minDiff = jamKeluar.diff(moment(jamKeluar), 'minutes')
 
         jamKerja = `${hourDiff}:${minDiff}`
     }
+
+    if(jamMasuk!='--:--') jamMasuk = jamMasuk.format('HH:mm')
+    if(jamKeluar!='--:--') jamKeluar = jamKeluar.format('HH:mm')
+
+    const overview = {
+        jamMasuk: jamMasuk,
+        jamKeluar: jamKeluar,
+        jamKerja: jamKerja!=null ? jamKerja : '--:--'
+    }
     
     return res.status(200).send({
-        overview: {
-            jamMasuk: jamMasuk.format('HH:mm'),
-            jamKeluar: jamKeluar.format('HH:mm'),
-            jamKerja: jamKerja
-        }
+        overview
     })
 }
 
@@ -123,7 +129,7 @@ const getLaporanBulanan = async (req,res) => {
 
 const addAbsensi = async (req,res) => {
     const nik = req.user.nik
-    console.log(req.user);
+    // console.log(req.user);
     const { is_lembur, keterangan, coord } = req.body
 
     let status = 0
