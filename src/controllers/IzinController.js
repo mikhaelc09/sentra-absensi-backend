@@ -58,7 +58,7 @@ const getDetailIzin = async (req,res) => {
             nik_pengaju: izin.nik_pengaju,
             waktu_mulai: izin.waktu_mulai,
             waktu_selesai: izin.waktu_selesai,
-            keterangan: izin.keterangan,
+            keterangan: izin.keterangan!=null ? izin.keterangan : '',
             status: status,
             jenis: jenis,
             pengganti: pengganti!=null ? pengganti.nama : null,
@@ -123,23 +123,20 @@ const addIzin = async (req,res) => {
     const nik = req.user.nik
     let { waktu_mulai, waktu_selesai, keterangan, lokasi, pengganti, jenis } = req.body
 
+    const date = new Date()
+
     const schema = Joi.object({
-        waktu_mulai: Joi.date().required().label('Tanggal Mulai').messages({
+        waktu_mulai: Joi.date().required().min(moment(date).format('YYYY-MM-DD')).label('Tanggal Mulai').messages({
             'any.required': '{{#label}} harus diisi',
+            'date.min': '{{#label}} tidak valid'
         }),
-        waktu_selesai: Joi.date().required().label('Tanggal Selesai').messages({
+        waktu_selesai: Joi.date().required().min(Joi.ref('waktu_mulai')).label('Tanggal Selesai').messages({
             'any.required': '{{#label}} harus diisi',
+            'date.min': '{{#label}} tidak valid'
         }),
-        keterangan: Joi.string().required().label('Keterangan').messages({
-            'any.required': '{{#label}} harus diisi',
-            'string.empty': '{{#label}} harus diisi',
-        }),
-        lokasi: Joi.string().label('Lokasi').messages({
-
-        }),
-        pengganti: Joi.string().label('Pengganti').messages({
-
-        }),
+        keterangan: Joi.string().label('Keterangan'),
+        lokasi: Joi.string().label('Lokasi'),
+        pengganti: Joi.string().label('Pengganti'),
         jenis: Joi.number().required()
     })
 
@@ -156,11 +153,14 @@ const addIzin = async (req,res) => {
     else if(jenis==1 && !pengganti){
         return res.status(400).send(msg('Pengganti harus diisi'))
     }
+    else if(jenis==1 && !keterangan){
+        return res.status(400).send(msg('Keterangan harus diisi'))
+    }
 
     if(!lokasi){
         lokasi = null
     }
-    if(!pengganti){
+    if(!pengganti || pengganti==0){
         pengganti = null
     }
 
