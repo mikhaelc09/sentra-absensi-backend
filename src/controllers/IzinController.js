@@ -55,6 +55,7 @@ const getDetailIzin = async (req,res) => {
     return res.status(200).send({
         izin: {
             id: izin.id,
+            nik_pengaju: izin.nik_pengaju,
             waktu_mulai: izin.waktu_mulai,
             waktu_selesai: izin.waktu_selesai,
             keterangan: izin.keterangan,
