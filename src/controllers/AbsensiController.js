@@ -101,17 +101,44 @@ const getLaporanBulanan = async (req,res) => {
     const nik = req.user.nik
     const { tahun, bulan } = req.params
 
+    // const absensi = await Absensi.findAll({
+    //     where: {
+    //         [Op.and]: [
+    //             { karyawan: nik },
+    //             sequelize.where(
+    //                 sequelize.literal(`MONTH(created_at) = ${bulan} AND YEAR(created_at) = ${tahun}`),
+    //                 true
+    //             )
+    //         ]
+    //     },
+    //     order: [['created_at', 'ASC']],
+    // })
+
+    const now = new Date()
+    const lastMonth = now.getMonth() === 0 ? 12 : now.getMonth()
+    const lastMonthYear = lastMonth === 12 ? now.getFullYear() - 1 : now.getFullYear()
+    const startDate = new Date(lastMonthYear, lastMonth - 1, 26)
+    const endDate = new Date(now.getFullYear(), now.getMonth(), 25)
+
     const absensi = await Absensi.findAll({
+        attributes: [
+          sequelize.literal(`DATE(created_at) AS date`),
+          [sequelize.fn('MIN', sequelize.col('created_at')), 'jam_masuk'],
+          [sequelize.fn('MAX', sequelize.col('created_at')), 'jam_keluar']
+        ],
         where: {
+            nik,
+            created_at: {
+                [Op.between]: [startDate, endDate]
+            },
             [Op.and]: [
-                { karyawan: nik },
                 sequelize.where(
-                    sequelize.literal(`MONTH(created_at) = ${bulan} AND YEAR(created_at) = ${tahun}`),
-                    true
-                )
-            ]
-        },
-        order: [['created_at', 'ASC']],
+                    sequelize.fn('DAYOFWEEK', Sequelize.col('created_at')),
+                    { [Op.not]: 1 }
+                ),
+            ],
+        }, 
+        group: [sequelize.literal(`DATE(created_at)`)]
     })
 
     const retAbsensi = []
@@ -119,13 +146,51 @@ const getLaporanBulanan = async (req,res) => {
     if(absensi.length>0){
         absensi.forEach((absen) => {
             let tempTgl = moment(absen.dataValues.created_at).format('DD MMM YYYY')
-            let tempHari = hari[moment(absen.dataValues.created_at).day()]
+            let tempHari = hari[moment(absen.dataValues.created_at).day()-1]
             let tanggal = `${tempHari}, ${tempTgl}`
 
-            let jam = moment(absen.dataValues.created_at).format('HH:mm')
-            //INI BLM SLESAI
+            let jamMasuk = moment(absen.dataValues.jam_masuk)
+            let jamKeluar = moment(absen.dataValues.jam_keluar)
+            
+            let jamKerja = '00:00'
+            let jamKurang = '00:00'
+            let jamLebih = '00:00'
+            if(jamMasuk!='Invalid date' && jamKeluar!='Invalid date'){
+                let hourDiff = jamKeluar.diff(jamMasuk, 'hours')
+                let minDiff = jamKeluar.diff(jamMasuk, 'minutes')
+        
+                jamMasuk = jamMasuk.format('HH:mm')
+                jamKeluar = jamKeluar.format('HH:mm')
+                jamKerja = `${hourDiff}:${minDiff}`
+
+                //count jam kurang
+                if(hourDiff < 7){
+                    let kurang_jam = 7 - hourDiff
+                    let kurang_min = 60 - minDiff
+                    jamKurang = `${kurang_jam}:${kurang_min}`
+                }
+
+                //count jam lebih
+                if(hourDiff > 7){
+                    let lebih_jam = hourDiff - 7
+                    jamLebih = `${lebih_jam}:${minDiff}`
+                }
+            }
+
+            retAbsensi.push({
+                tanggal,
+                absen_masuk: jamMasuk,
+                absen_keluar: jamKeluar,
+                jam_kerja: jamKerja,
+                waktu_kurang: jamKurang,
+                waktu_lebih: jamLebih
+            })
         })
     }
+
+    return res.status(200).send({
+        laporan: retAbsensi
+    })
 }
 
 const addAbsensi = async (req,res) => {

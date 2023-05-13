@@ -6,7 +6,7 @@ const absensiRoute = express.Router()
 
 absensiRoute.get('/overview', checkToken, getOverview)
 absensiRoute.get('/riwayat', checkToken, getRiwayatHarian)
-absensiRoute.get('/laporan/:tahun/:bulan', checkToken, getLaporanBulanan)
+absensiRoute.get('/laporan/periode', checkToken, getLaporanBulanan)
 
 absensiRoute.post('/', checkToken, addAbsensi)
 
