@@ -42,10 +42,11 @@ const getOverview = async (req,res) => {
 
     let jamKerja = null
     if(jamMasuk!='--:--' && jamKeluar!='--:--'){
-        let hourDiff = jamKeluar.diff(jamMasuk, 'hours')
-        let minDiff = jamKeluar.diff(jamMasuk, 'minutes')
+        const duration = moment.duration(jamKeluar.diff(jamMasuk))
+        const hours = Math.floor(duration.asHours())
+        const minutes = duration.minutes()
 
-        jamKerja = `${hourDiff}:${minDiff}`
+        jamKerja = moment({ hour: hours, minute: minutes }).format('HH:mm')
     }
 
     if(jamMasuk!='--:--') jamMasuk = jamMasuk.format('HH:mm')
@@ -99,7 +100,6 @@ const getRiwayatHarian = async (req,res) => {
 
 const getLaporanBulanan = async (req,res) => {
     const nik = req.user.nik
-    const { tahun, bulan } = req.params
 
     const now = new Date()
     const lastMonth = now.getMonth() === 0 ? 12 : now.getMonth()
@@ -143,24 +143,25 @@ const getLaporanBulanan = async (req,res) => {
             let jamKurang = '00:00'
             let jamLebih = '00:00'
             if(jamMasuk!='Invalid date' && jamKeluar!='Invalid date'){
-                let hourDiff = jamKeluar.diff(jamMasuk, 'hours')
-                let minDiff = jamKeluar.diff(jamMasuk, 'minutes')
-        
+                const duration = moment.duration(jamKeluar.diff(jamMasuk))
+                const hours = Math.floor(duration.asHours())
+                const minutes = duration.minutes()
+
+                jamKerja = moment({ hour: hours, minute: minutes }).format('HH:mm')
                 jamMasuk = jamMasuk.format('HH:mm')
                 jamKeluar = jamKeluar.format('HH:mm')
-                jamKerja = `${hourDiff}:${minDiff}`
 
                 //count jam kurang
-                if(hourDiff < 7){
-                    let kurang_jam = 7 - hourDiff
-                    let kurang_min = 60 - minDiff
-                    jamKurang = `${kurang_jam}:${kurang_min}`
+                if(hours < 7){
+                    let kurang_jam = 7 - hours
+                    let kurang_min = 60 - minutes
+                    jamKurang = moment({ hour: kurang_jam, minute: kurang_min }).format('HH:mm')
                 }
 
                 //count jam lebih
-                if(hourDiff > 7){
-                    let lebih_jam = hourDiff - 7
-                    jamLebih = `${lebih_jam}:${minDiff}`
+                if(hours > 7){
+                    let lebih_jam = hours - 7
+                    jamLebih = moment({ hour: lebih_jam, minute: minutes }).format('HH:mm')
                 }
             }
 
