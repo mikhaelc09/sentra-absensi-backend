@@ -115,6 +115,7 @@ const getLaporanBulanan = async (req,res) => {
         ],
         where: {
             nik,
+            // status: 1,
             created_at: {
                 [Op.between]: [startDate, endDate]
             },
@@ -181,6 +182,69 @@ const getLaporanBulanan = async (req,res) => {
     })
 }
 
+const getLaporanChart = async (req,res) => {
+    const { tahun, bulan } = req.params
+    const nik = req.user.nik
+
+    const startDate = moment({ year: tahun, month: bulan - 1 }).startOf('month').format('YYYY-MM-DD HH:mm:ss');
+    const endDate = moment({ year: tahun, month: bulan - 1 }).endOf('month').format('YYYY-MM-DD HH:mm:ss');
+
+    const absensi = await Absensi.findAll({
+        attributes: [
+            sequelize.literal(`DATE(created_at) AS date`),
+            [sequelize.fn('MIN', sequelize.col('created_at')), 'jam_masuk'],
+            [sequelize.fn('MAX', sequelize.col('created_at')), 'jam_keluar']
+        ],
+        where: {
+            nik,
+            //   status: 1,
+            created_at: {
+                [Op.between]: [startDate, endDate]
+            },
+            [Op.and]: [
+                sequelize.where(
+                    sequelize.fn('DAYOFWEEK', Sequelize.col('created_at')),
+                    { [Op.not]: 1 }
+                ),
+            ],
+        }, 
+        group: [sequelize.literal(`DATE(created_at)`)]
+    })
+
+    const retAbsensi = []
+    const retLabels = []
+    if(absensi.length>0){
+        absensi.forEach((absen) => {
+            let tanggal = moment(absen.dataValues.jam_masuk).format('DD/MM/YYYY')
+
+            let jamMasuk = moment(absen.dataValues.jam_masuk)
+            let jamKeluar = moment(absen.dataValues.jam_keluar)
+            
+            let persentase = 0
+            if(jamMasuk!='Invalid date' && jamKeluar!='Invalid date'){
+                const duration = moment.duration(jamKeluar.diff(jamMasuk))
+                const hours = Math.floor(duration.asHours())
+                const minutes = duration.minutes()
+
+                let jamKerja = (hours*60) + minutes
+                persentase = ((jamKerja / 420) * 100).toFixed(2)
+            }
+
+            retAbsensi.push(parseFloat(persentase))
+            retLabels.push(tanggal)
+        })
+    }
+
+    //DELETE NANTI
+    retAbsensi.push(50)
+    retLabels.push('14/05/2023')
+
+    return res.status(200).send({
+        laporan: retAbsensi,
+        labels: retLabels
+    })
+}
+
 const addAbsensi = async (req,res) => {
     const nik = req.user.nik
     // console.log(req.user);
@@ -238,5 +302,5 @@ const addAbsensi = async (req,res) => {
 }
 
 export {
-    getOverview, getRiwayatHarian, getLaporanBulanan, addAbsensi
+    getOverview, getRiwayatHarian, getLaporanBulanan, getLaporanChart, addAbsensi
 }
