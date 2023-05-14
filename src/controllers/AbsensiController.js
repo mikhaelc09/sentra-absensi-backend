@@ -132,8 +132,8 @@ const getLaporanBulanan = async (req,res) => {
     let hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
     if(absensi.length>0){
         absensi.forEach((absen) => {
-            let tempTgl = moment(absen.dataValues.created_at).format('DD MMM YYYY')
-            let tempHari = hari[moment(absen.dataValues.created_at).day()-1]
+            let tempTgl = moment(absen.dataValues.jam_masuk).format('DD MMM YYYY')
+            let tempHari = hari[moment(absen.dataValues.jam_masuk).day()-1]
             let tanggal = `${tempHari}, ${tempTgl}`
 
             let jamMasuk = moment(absen.dataValues.jam_masuk)
