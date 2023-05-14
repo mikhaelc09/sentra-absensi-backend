@@ -20,7 +20,6 @@ const login = async (req, res) => {
             "string.empty": "Email harus diisi",
         }),
         password: Joi.string().required().messages({
-            // "string.min": "Password minimal 8 karakter",
             "any.required": "Password harus diisi",
             "string.empty": "Password harus diisi",
         })
@@ -29,7 +28,7 @@ const login = async (req, res) => {
         await schema.validateAsync(req.body)
     }
     catch(validationErr){
-        return res.status(400).send(msg(validationErr))
+        return res.status(400).send(msg(validationErr.details[0].message.split('"').join('')))
     }
     const { email, password } = req.body
     const user = await Karyawan.findOne({
@@ -91,7 +90,7 @@ const forgotPassword = async (req,res) => {
         await schema.validateAsync(req.body)
     }
     catch(validationErr){
-        return res.status(400).send(msg(validationErr))
+        return res.status(400).send(msg(validationErr.details[0].message.split('"').join('')))
     }
 
     const user = await Karyawan.findOne({
@@ -187,7 +186,7 @@ const resetPassword = async (req,res) => {
         await schema.validateAsync(req.body)
     }
     catch(validationErr){
-        return res.status(400).send(msg(validationErr))
+        return res.status(400).send(msg(validationErr.details[0].message.split('"').join('')))
     }
 
     if(password !== confpass){

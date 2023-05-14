@@ -1,6 +1,7 @@
 import express from 'express'
 import Joi from 'joi'
 import { Sequelize } from 'sequelize'
+import bcrypt from 'bcrypt'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
@@ -39,8 +40,7 @@ const changePassword = async (req,res) => {
     const { oldpass, newpass, confpass } = req.body
 
     const schema = Joi.object({
-        oldpass: Joi.string().min(8).required().label('Password Lama').messages({
-            'string.min': '{{#label}} minimal 8 karakter',
+        oldpass: Joi.string().required().label('Password Lama').messages({
             'any.required': '{{#label}} harus diisi',
             'string.empty': '{{#label}} harus diisi',
         }),
@@ -60,10 +60,10 @@ const changePassword = async (req,res) => {
         await schema.validateAsync(req.body)
     }
     catch(validationErr){
-        return res.status(400).send(msg(validationErr))
+        return res.status(400).send(msg(validationErr.details[0].message.split('"').join('')))
     }
 
-    const user = Karyawan.findByPk(nik)
+    const user = await Karyawan.findByPk(nik)
 
     const isPasswordValid = await bcrypt.compare(oldpass, user.password)
     if(!isPasswordValid){
@@ -74,7 +74,7 @@ const changePassword = async (req,res) => {
     }
 
     const karyawan = await Karyawan.findByPk(nik)
-    const hashedPass = bcrypt.hashSync(password, 12)
+    const hashedPass = bcrypt.hashSync(newpass, 12)
     await karyawan.update({
         password: hashedPass
     })

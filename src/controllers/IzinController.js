@@ -144,7 +144,7 @@ const addIzin = async (req,res) => {
         await schema.validateAsync(req.body)
     }
     catch(validationErr){
-        return res.status(400).send(msg(validationErr))
+        return res.status(400).send(msg(validationErr.details[0].message.split('"').join('')))
     }
 
     if(jenis==2 && !lokasi){
