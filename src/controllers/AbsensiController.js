@@ -24,6 +24,7 @@ const getOverview = async (req,res) => {
     const absensi = await Absensi.findAll({
         where: {
             nik,
+            // status:1,
             [Op.and]: [
                 sequelize.where(
                     sequelize.literal(`DATE(created_at) = '${today}'`),
@@ -186,8 +187,8 @@ const getLaporanChart = async (req,res) => {
     const { tahun, bulan } = req.params
     const nik = req.user.nik
 
-    const startDate = moment({ year: tahun, month: bulan - 1 }).startOf('month').format('YYYY-MM-DD HH:mm:ss');
-    const endDate = moment({ year: tahun, month: bulan - 1 }).endOf('month').format('YYYY-MM-DD HH:mm:ss');
+    const startDate = moment({ year: tahun, month: bulan - 1 }).startOf('month').format('YYYY-MM-DD HH:mm:ss')
+    const endDate = moment({ year: tahun, month: bulan - 1 }).endOf('month').format('YYYY-MM-DD HH:mm:ss')
 
     const absensi = await Absensi.findAll({
         attributes: [
@@ -247,7 +248,6 @@ const getLaporanChart = async (req,res) => {
 
 const addAbsensi = async (req,res) => {
     const nik = req.user.nik
-    // console.log(req.user);
     const { is_lembur, keterangan, coord } = req.body
 
     if(is_lembur && !keterangan){
