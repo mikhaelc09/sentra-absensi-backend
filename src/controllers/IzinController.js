@@ -38,6 +38,10 @@ const getDetailIzin = async (req,res) => {
     if(izin.nik_pengganti!=null){
         pengganti = await Karyawan.findByPk(izin.nik_pengganti)
     }
+
+    if(req.user.nik != izin.pengaju){
+        return res.status(401).send(msg('Unauthorized'))
+    }
     
     
     const jenis = (izin.jenis==1) ? 'Cuti' : 'MCU'
