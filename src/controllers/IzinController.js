@@ -39,7 +39,7 @@ const getDetailIzin = async (req,res) => {
         pengganti = await Karyawan.findByPk(izin.nik_pengganti)
     }
 
-    if(req.user.nik != izin.pengaju){
+    if(req.user.nik != izin.nik_pengaju){
         return res.status(401).send(msg('Unauthorized'))
     }
     

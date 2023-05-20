@@ -237,8 +237,8 @@ const getLaporanChart = async (req,res) => {
     }
 
     //DELETE NANTI
-    retAbsensi.push(50)
-    retLabels.push('14/05/2023')
+    // retAbsensi.push(50)
+    // retLabels.push('14/05/2023')
 
     return res.status(200).send({
         laporan: retAbsensi,
