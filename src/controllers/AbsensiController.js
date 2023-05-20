@@ -24,7 +24,7 @@ const getOverview = async (req,res) => {
     const absensi = await Absensi.findAll({
         where: {
             nik,
-            // status:1,
+            status:1,
             [Op.and]: [
                 sequelize.where(
                     sequelize.literal(`DATE(created_at) = '${today}'`),
@@ -292,6 +292,7 @@ const addAbsensi = async (req,res) => {
     if(is_lembur){
         const lembur = await Lembur.create({
             nik: nik,
+            // id_absensi: absensi.id,
             status: 0
         })
     }
