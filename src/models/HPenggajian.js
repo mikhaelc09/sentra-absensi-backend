@@ -27,7 +27,7 @@ HPenggajian.init(
       },
       tanggal: {
         allowNull: false,
-        type: DataTypes.TIME
+        type: DataTypes.DATE
       },
       total: {
         allowNull: false,
