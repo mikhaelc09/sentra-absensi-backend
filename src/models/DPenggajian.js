@@ -27,7 +27,7 @@ DPenggajian.init(
         type: DataTypes.STRING(30)
       },
       keterangan: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.TEXT
       },
       jumlah: {

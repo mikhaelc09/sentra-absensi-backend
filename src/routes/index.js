@@ -5,6 +5,7 @@ import authRoute from '../routes/auth.route.js';
 import userRoute from './user.route.js';
 import izinRoute from './izin.route.js';
 import absensiRoute from './absensi.route.js';
+import gajiRoute from './gaji.route.js';
 
 const router = express.Router();
 
@@ -20,5 +21,7 @@ router.use('/profile', userRoute)
 router.use('/izin', izinRoute)
 
 router.use('/absensi', absensiRoute)
+
+router.use('/gaji', gajiRoute)
 
 export {router};
