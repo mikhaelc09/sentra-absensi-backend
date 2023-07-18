@@ -65,6 +65,7 @@ const getDetailIzin = async (req,res) => {
             keterangan: izin.keterangan!=null ? izin.keterangan : '',
             status: status,
             jenis: jenis,
+            ttd: izin.signature,
             pengganti: pengganti!=null ? pengganti.nama : null,
             lokasi: izin.lokasi!=null ? izin.lokasi : null
         }
@@ -125,7 +126,7 @@ const getKaryawanPengganti = async (req,res) => {
 
 const addIzin = async (req,res) => {
     const nik = req.user.nik
-    let { waktu_mulai, waktu_selesai, keterangan, lokasi, pengganti, jenis } = req.body
+    let { waktu_mulai, waktu_selesai, keterangan, lokasi, pengganti, jenis, ttd } = req.body
 
     const date = new Date()
 
@@ -141,7 +142,8 @@ const addIzin = async (req,res) => {
         keterangan: Joi.string().label('Keterangan'),
         lokasi: Joi.string().label('Lokasi'),
         pengganti: Joi.string().label('Pengganti'),
-        jenis: Joi.number().required()
+        jenis: Joi.number().required(),
+        ttd: Joi.string().optional()
     })
 
     try{
@@ -168,8 +170,6 @@ const addIzin = async (req,res) => {
         pengganti = null
     }
 
-    // console.log(req.body)
-
     const izin = await Izin.create({
         nik_pengaju: nik,
         waktu_mulai,
@@ -178,7 +178,8 @@ const addIzin = async (req,res) => {
         lokasi,
         nik_pengganti: pengganti,
         status: 1,
-        jenis
+        jenis,
+        signature: ttd
     })
     
     return res.status(201).send({

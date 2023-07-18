@@ -31,14 +31,22 @@ const getSlipGaji = async (req,res) => {
         ]
     })
 
+    if(hpenggajian==null){
+        return res.status(200).send({})
+    }
+
     const dpenggajian = await DPenggajian.findAll({
         where: {
             id_header: hpenggajian.dataValues.id
         },
-        attributes: [
+        attributes: [ 
             'id', 'id_header', 'judul', 'jumlah', 'nominal', 'subtotal'
         ]
     })
+
+    if(dpenggajian==null){
+        return res.status(200).send({})
+    }
 
     let totalPenghasilan = 0
     let totalPotongan = 0

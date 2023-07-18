@@ -52,6 +52,10 @@ Izin.init(
         type: DataTypes.SMALLINT,
         comment: '1: Cuti, 2: MCU'
       },
+      signature: {
+        allowNull: true,
+        type: DataTypes.TEXT
+      },
       created_at: {
         allowNull: false,
         type: DataTypes.DATE,
