@@ -3,5 +3,5 @@ WORKDIR /home/ws
 COPY . .
 RUN npm install
 RUN mv .env.example .env
-EXPOSE 3000
+EXPOSE 3001
 CMD ["npm", "start"]
