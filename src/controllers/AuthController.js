@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer'
 import hbs from 'nodemailer-express-handlebars'
 import path from 'path'
 import * as dotenv from 'dotenv'
+import { LocalStorage } from 'node-localstorage'
 dotenv.config()
 
 import { msg } from "../utils/index.js"
@@ -60,6 +61,11 @@ const login = async (req, res) => {
         httpOnly: false,
         expires: DateTime.now().plus({ days: 1 }).toJSDate(),
     })
+
+    //save to localStorage
+    let localStorage = new LocalStorage('./scratch')
+    localStorage.setItem('token', token)
+    console.log(token)
 
     return res.status(200).send({
         message: "Login berhasil",
