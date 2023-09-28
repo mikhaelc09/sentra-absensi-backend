@@ -246,6 +246,15 @@ const getLaporanChart = async (req,res) => {
     })
 }
 
+const http = axios.create({
+    withCredentials: true,
+    headers:{
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+    }
+})
+
 const addAbsensi = async (req,res) => {
     const nik = req.user.nik
     const { is_lembur, keterangan, coord } = req.body
@@ -272,7 +281,7 @@ const addAbsensi = async (req,res) => {
     })
     if(jadwal){
         const lokasi = await LokasiPenting.findByPk(jadwal.id_lokasi)
-        const lokasiAbsen = await axios.get(`https://autosuggest.search.hereapi.com/v1/autosuggest?at=${at}&limit=10&lang=id&q=${lokasi.nama}&apiKey=${process.env.HERE_API_KEY}`)
+        const lokasiAbsen = await http.get(`https://autosuggest.search.hereapi.com/v1/autosuggest?at=${at}&limit=10&lang=id&q=${lokasi.nama}&apiKey=${process.env.HERE_API_KEY}`)
         if(lokasiAbsen.data.items.length > 0){
             status = lokasiAbsen.data.items[0].distance < 2000
         }

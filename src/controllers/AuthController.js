@@ -62,10 +62,9 @@ const login = async (req, res) => {
         expires: DateTime.now().plus({ days: 1 }).toJSDate(),
     })
 
-    //save to localStorage
+    //save token to localStorage
     let localStorage = new LocalStorage('./scratch')
     localStorage.setItem('token', token)
-    console.log(token)
 
     return res.status(200).send({
         message: "Login berhasil",
