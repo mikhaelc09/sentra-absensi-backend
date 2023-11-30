@@ -5,6 +5,7 @@ import axios from 'axios'
 import { Sequelize, Op } from 'sequelize'
 import sequelize from '../config/database.js'
 import * as dotenv from 'dotenv'
+import { isWithinRadius } from '../utils/index.js'
 dotenv.config()
 
 import { msg } from '../utils/index.js'
@@ -252,7 +253,8 @@ const http = axios.create({
         'Content-Type': 'application/json',
         'Access-Control-Allow-Headers': 'Origin, X-Requested, Content-Type, Accept Authorization',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true
+        'Access-Control-Allow-Credentials': true,
+        'Access-Control-Allow-Methods': 'GET, POST'
     }
 })
 
@@ -282,10 +284,12 @@ const addAbsensi = async (req,res) => {
     })
     if(jadwal){
         const lokasi = await LokasiPenting.findByPk(jadwal.id_lokasi)
-        const lokasiAbsen = await http.get(`https://autosuggest.search.hereapi.com/v1/autosuggest?at=${at}&limit=10&lang=id&q=${lokasi.nama}&apiKey=${process.env.HERE_API_KEY}`)
-        if(lokasiAbsen.data.items.length > 0){
-            status = lokasiAbsen.data.items[0].distance < 2000
-        }
+        // const lokasiAbsen = await http.get(`https://autosuggest.search.hereapi.com/v1/autosuggest?at=${at}&limit=10&lang=id&q=${lokasi.nama}&apiKey=${process.env.HERE_API_KEY}`)
+        // if(lokasiAbsen.data.items.length > 0){
+        //     status = lokasiAbsen.data.items[0].distance < 2000
+        // }
+
+        status = isWithinRadius(coord.lat, coord.lng, lokasi.latitude, lokasi.longitude, 0.5)
     }
 
     // console.log(location.data)
