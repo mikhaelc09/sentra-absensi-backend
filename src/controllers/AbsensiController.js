@@ -117,7 +117,7 @@ const getLaporanBulanan = async (req,res) => {
         ],
         where: {
             nik,
-            // status: 1,
+            status: 1,
             created_at: {
                 [Op.between]: [startDate, endDate]
             },
@@ -291,8 +291,6 @@ const addAbsensi = async (req,res) => {
 
         status = isWithinRadius(coord.lat, coord.lng, lokasi.latitude, lokasi.longitude, 0.5)
     }
-
-    // console.log(location.data)
 
     const absensi = await Absensi.create({
         nik: nik,
