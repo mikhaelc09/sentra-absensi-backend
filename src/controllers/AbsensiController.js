@@ -39,8 +39,10 @@ const getOverview = async (req,res) => {
     let jamMasuk = (absensi.length == 0) ? null : absensi[0].created_at
     let jamKeluar = (absensi.length <= 1) ? null : absensi[absensi.length-1].created_at
 
-    jamMasuk = jamMasuk!=null ? moment(jamMasuk) : '--:--'
-    jamKeluar = jamKeluar!=null ? moment(jamKeluar) : '--:--'
+    // jamMasuk = jamMasuk!=null ? moment(jamMasuk) : '--:--'
+    jamMasuk = jamMasuk!=null ? moment.tz(jamMasuk, 'Asia/Jakarta').utcOffset('+07:00') : '--:--'
+    // jamKeluar = jamKeluar!=null ? moment(jamKeluar) : '--:--'
+    jamKeluar = jamKeluar!=null ? moment.tz(jamKeluar, 'Asia/Jakarta').utcOffset('+07:00') : '--:--'
 
     let jamKerja = null
     if(jamMasuk!='--:--' && jamKeluar!='--:--'){
@@ -135,12 +137,12 @@ const getLaporanBulanan = async (req,res) => {
     let hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
     if(absensi.length>0){
         absensi.forEach((absen) => {
-            let tempTgl = moment(absen.dataValues.jam_masuk).format('DD MMM YYYY')
-            let tempHari = hari[moment(absen.dataValues.jam_masuk).day()-1]
+            let tempTgl = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').format('DD MMM YYYY')
+            let tempHari = hari[moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').day()-1]
             let tanggal = `${tempHari}, ${tempTgl}`
 
-            let jamMasuk = moment(absen.dataValues.jam_masuk)
-            let jamKeluar = moment(absen.dataValues.jam_keluar)
+            let jamMasuk = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00')
+            let jamKeluar = moment.tz(absen.dataValues.jam_keluar, 'Asia/Jakarta').utcOffset('+07:00')
             
             let jamKerja = '00:00'
             let jamKurang = '00:00'
