@@ -47,16 +47,8 @@ Karyawan.init(
         allowNull: false,
         type: DataTypes.STRING(255)
       },
-      alamat: {
-        allowNull: false,
-        type: DataTypes.TEXT
-      },
-      tanggal_lahir: {
-        allowNull: false,
-        type: DataTypes.DATE
-      },
       no_telp: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(15)
       },
       no_rekening: {
@@ -69,6 +61,10 @@ Karyawan.init(
       },
       id_divisi: {
         allownull: false,
+        references:{
+          model:'divisi',
+          key:'id'
+        },
         type: DataTypes.INTEGER,
         // references: {model: 'divisi', key: 'id'}
       },
@@ -77,12 +73,22 @@ Karyawan.init(
         type: DataTypes.SMALLINT
       },
       keterangan: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.TEXT
       },
       is_admin: {
         allowNull: false,
         type: DataTypes.SMALLINT
+      },
+      gaji_pokok: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+      },
+      tunjangan_perusahaan: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        defaultValue: 0
       },
       created_at: {
         allowNull: false,
