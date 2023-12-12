@@ -49,7 +49,7 @@ const getDetailIzin = async (req,res) => {
     if(izin.status==2){
         status = 'Disetujui'
     }
-    else if(izin.status==3){
+    else if(izin.status==0){
         status = 'Ditolak'
     }
 
