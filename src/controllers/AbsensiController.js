@@ -121,23 +121,23 @@ const getLaporanBulanan = async (req,res) => {
             created_at: {
                 [Op.between]: [startDate, endDate]
             },
-            [Op.and]: [
-                sequelize.where(
-                    sequelize.fn('DAYOFWEEK', Sequelize.col('created_at')),
-                    { [Op.not]: 1 }
-                ),
-            ],
+            // [Op.and]: [
+            //     sequelize.where(
+            //         sequelize.fn('DAYOFWEEK', Sequelize.col('created_at')),
+            //         { [Op.not]: 1 }
+            //     ),
+            // ],
         }, 
         group: [sequelize.literal(`DATE(created_at)`)]
     })
 
     const retAbsensi = []
-    let hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+    let hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
     if(absensi.length>0){
         absensi.forEach((absen) => {
             let tempTgl = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').format('DD MMM YYYY')
             let numHari = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').day()
-            let tempHari = hari[numHari-1]
+            let tempHari = hari[numHari]
             let tanggal = `${tempHari}, ${tempTgl}`
 
             let jamMasuk = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00')
@@ -156,18 +156,19 @@ const getLaporanBulanan = async (req,res) => {
                 jamKeluar = jamKeluar.format('HH:mm')
 
                 //count jam kurang
-                if(numHari!=7 && hours < 7){
+                if(numHari!=0 && hours < 7){
                     let kurang_jam = 7 - hours
                     let kurang_min = 60 - minutes
                     jamKurang = moment({ hour: kurang_jam, minute: kurang_min }).format('HH:mm')
+                    if(jamKurang=='Invalid date') jamKurang = '07:00'
                 }
 
                 //count jam lebih
-                if(numHari!=7 && hours > 7){
+                if(numHari!=0 && hours > 7){
                     let lebih_jam = hours - 7
                     jamLebih = moment({ hour: lebih_jam, minute: minutes }).format('HH:mm')
                 }
-                else if(numHari==7){
+                else if(numHari==0){
                     jamLebih = jamKerja
                 }
             }
@@ -203,27 +204,28 @@ const getLaporanKehadiran = async (req, res) => {
         ],
         where: {
             nik,
-            status: 1,
+            // status: 1,
             created_at: {
                 [Op.between]: [startDate, endDate]
             },
-            [Op.and]: [
-                sequelize.where(
-                    sequelize.fn('DAYOFWEEK', Sequelize.col('created_at')),
-                    { [Op.not]: 1 }
-                ),
-            ],
+            // [Op.and]: [
+            //     sequelize.where(
+            //         sequelize.fn('DAYOFWEEK', Sequelize.col('created_at')),
+            //         { [Op.not]: 1 }
+            //     ),
+            // ],
         }, 
         group: [sequelize.literal(`DATE(created_at)`)]
     })
 
     const retAbsensi = []
-    let hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+    let hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
     if(absensi.length>0){
         absensi.forEach((absen) => {
             let tempTgl = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').format('DD MMM YYYY')
             let numHari = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').day()
-            let tempHari = hari[numHari-1]
+            let tempHari = hari[numHari]
+            console.log(numHari)
             let tanggal = `${tempHari}, ${tempTgl}`
 
             let jamMasuk = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00')
@@ -242,18 +244,19 @@ const getLaporanKehadiran = async (req, res) => {
                 jamKeluar = jamKeluar.format('HH:mm')
 
                 //count jam kurang
-                if(numHari!=7 && hours < 7){
+                if(numHari!=0 && hours < 7){
                     let kurang_jam = 7 - hours
                     let kurang_min = 60 - minutes
                     jamKurang = moment({ hour: kurang_jam, minute: kurang_min }).format('HH:mm')
+                    if(jamKurang=='Invalid date') jamKurang = '07:00'
                 }
 
                 //count jam lebih
-                if(numHari!=7 && hours > 7){
+                if(numHari!=0 && hours > 7){
                     let lebih_jam = hours - 7
                     jamLebih = moment({ hour: lebih_jam, minute: minutes }).format('HH:mm')
                 }
-                else if(numHari==7){
+                else if(numHari==0){
                     jamLebih = jamKerja
                 }
             }
