@@ -15,7 +15,8 @@ const getAllIzin = async (req,res) => {
         where: {
             nik_pengaju: nik
         },
-        attributes: ['id', 'waktu_mulai', 'waktu_selesai', 'keterangan', 'status', 'jenis']
+        attributes: ['id', 'waktu_mulai', 'waktu_selesai', 'keterangan', 'status', 'jenis'],
+        order: [['waktu_mulai', 'DESC']]
     })
 
     izin.forEach((i) => {
@@ -44,12 +45,12 @@ const getDetailIzin = async (req,res) => {
     }
     
     
-    const jenis = ''
+    let jenis = ''
     if(jenis==1) jenis = 'Cuti'
     else if(jenis==2) jenis = 'MCU'
     else if(jenis==3) jenis = 'Sakit'
 
-    const status = ''
+    let status = ''
     if(izin.status==1) status = 'Menunggu'
     else if(izin.status==2) status = 'Disetujui'
     else if(izin.status==0) status = 'Ditolak'
@@ -180,7 +181,7 @@ const addIzin = async (req,res) => {
         nik_pengganti: pengganti,
         status: 1,
         jenis,
-        signature: ttd
+        signature: ttd!=null ? ttd : ''
     })
     
     return res.status(201).send({
