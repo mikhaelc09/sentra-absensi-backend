@@ -39,9 +39,7 @@ const getOverview = async (req,res) => {
     let jamMasuk = (absensi.length == 0) ? null : absensi[0].created_at
     let jamKeluar = (absensi.length <= 1) ? null : absensi[absensi.length-1].created_at
 
-    // jamMasuk = jamMasuk!=null ? moment(jamMasuk) : '--:--'
     jamMasuk = jamMasuk!=null ? moment.tz(jamMasuk, 'Asia/Jakarta').utcOffset('+07:00') : '--:--'
-    // jamKeluar = jamKeluar!=null ? moment(jamKeluar) : '--:--'
     jamKeluar = jamKeluar!=null ? moment.tz(jamKeluar, 'Asia/Jakarta').utcOffset('+07:00') : '--:--'
 
     let jamKerja = null
@@ -119,6 +117,92 @@ const getLaporanBulanan = async (req,res) => {
         ],
         where: {
             nik,
+            // status: 1,
+            created_at: {
+                [Op.between]: [startDate, endDate]
+            },
+            [Op.and]: [
+                sequelize.where(
+                    sequelize.fn('DAYOFWEEK', Sequelize.col('created_at')),
+                    { [Op.not]: 1 }
+                ),
+            ],
+        }, 
+        group: [sequelize.literal(`DATE(created_at)`)]
+    })
+
+    const retAbsensi = []
+    let hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+    if(absensi.length>0){
+        absensi.forEach((absen) => {
+            let tempTgl = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').format('DD MMM YYYY')
+            let numHari = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').day()
+            let tempHari = hari[numHari-1]
+            let tanggal = `${tempHari}, ${tempTgl}`
+
+            let jamMasuk = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00')
+            let jamKeluar = moment.tz(absen.dataValues.jam_keluar, 'Asia/Jakarta').utcOffset('+07:00')
+            
+            let jamKerja = '00:00'
+            let jamKurang = '00:00'
+            let jamLebih = '00:00'
+            if(jamMasuk!='Invalid date' && jamKeluar!='Invalid date'){
+                const duration = moment.duration(jamKeluar.diff(jamMasuk))
+                const hours = Math.floor(duration.asHours())
+                const minutes = duration.minutes()
+
+                jamKerja = moment({ hour: hours, minute: minutes }).format('HH:mm')
+                jamMasuk = jamMasuk.format('HH:mm')
+                jamKeluar = jamKeluar.format('HH:mm')
+
+                //count jam kurang
+                if(numHari!=7 && hours < 7){
+                    let kurang_jam = 7 - hours
+                    let kurang_min = 60 - minutes
+                    jamKurang = moment({ hour: kurang_jam, minute: kurang_min }).format('HH:mm')
+                }
+
+                //count jam lebih
+                if(numHari!=7 && hours > 7){
+                    let lebih_jam = hours - 7
+                    jamLebih = moment({ hour: lebih_jam, minute: minutes }).format('HH:mm')
+                }
+                else if(numHari==7){
+                    jamLebih = jamKerja
+                }
+            }
+
+            retAbsensi.push({
+                tanggal,
+                absen_masuk: jamMasuk,
+                absen_keluar: jamKeluar,
+                jam_kerja: jamKerja,
+                waktu_kurang: jamKurang,
+                waktu_lebih: jamLebih
+            })
+        })
+    }
+
+    return res.status(200).send({
+        laporan: retAbsensi
+    })
+}
+
+const getLaporanKehadiran = async (req, res) => {
+    const { tahun, bulan } = req.params
+    const nik = req.user.nik
+
+    const startDate = moment({ year: tahun, month: bulan - 1 }).startOf('month').format('YYYY-MM-DD HH:mm:ss')
+    const endDate = moment({ year: tahun, month: bulan - 1 }).endOf('month').format('YYYY-MM-DD HH:mm:ss')
+
+    const absensi = await Absensi.findAll({
+        attributes: [
+            sequelize.literal(`DATE(created_at) AS date`),
+            [sequelize.fn('MIN', sequelize.col('created_at')), 'jam_masuk'],
+            [sequelize.fn('MAX', sequelize.col('created_at')), 'jam_keluar']
+        ],
+        where: {
+            nik,
             status: 1,
             created_at: {
                 [Op.between]: [startDate, endDate]
@@ -138,7 +222,8 @@ const getLaporanBulanan = async (req,res) => {
     if(absensi.length>0){
         absensi.forEach((absen) => {
             let tempTgl = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').format('DD MMM YYYY')
-            let tempHari = hari[moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').day()-1]
+            let numHari = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').day()
+            let tempHari = hari[numHari-1]
             let tanggal = `${tempHari}, ${tempTgl}`
 
             let jamMasuk = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00')
@@ -157,16 +242,19 @@ const getLaporanBulanan = async (req,res) => {
                 jamKeluar = jamKeluar.format('HH:mm')
 
                 //count jam kurang
-                if(hours < 7){
+                if(numHari!=7 && hours < 7){
                     let kurang_jam = 7 - hours
                     let kurang_min = 60 - minutes
                     jamKurang = moment({ hour: kurang_jam, minute: kurang_min }).format('HH:mm')
                 }
 
                 //count jam lebih
-                if(hours > 7){
+                if(numHari!=7 && hours > 7){
                     let lebih_jam = hours - 7
                     jamLebih = moment({ hour: lebih_jam, minute: minutes }).format('HH:mm')
+                }
+                else if(numHari==7){
+                    jamLebih = jamKerja
                 }
             }
 
@@ -201,7 +289,7 @@ const getLaporanChart = async (req,res) => {
         ],
         where: {
             nik,
-            //   status: 1,
+            status: 1,
             created_at: {
                 [Op.between]: [startDate, endDate]
             },
@@ -238,10 +326,6 @@ const getLaporanChart = async (req,res) => {
             retLabels.push(tanggal)
         })
     }
-
-    //DELETE NANTI
-    // retAbsensi.push(50)
-    // retLabels.push('14/05/2023')
 
     return res.status(200).send({
         laporan: retAbsensi,
@@ -291,7 +375,7 @@ const addAbsensi = async (req,res) => {
         //     status = lokasiAbsen.data.items[0].distance < 2000
         // }
 
-        status = isWithinRadius(coord.lat, coord.lng, lokasi.latitude, lokasi.longitude, 0.5)
+        status = isWithinRadius(coord.lat, coord.lng, lokasi.latitude, lokasi.longitude, 1)
     }
 
     const absensi = await Absensi.create({
@@ -317,5 +401,5 @@ const addAbsensi = async (req,res) => {
 }
 
 export {
-    getOverview, getRiwayatHarian, getLaporanBulanan, getLaporanChart, addAbsensi
+    getOverview, getRiwayatHarian, getLaporanBulanan, getLaporanKehadiran, getLaporanChart, addAbsensi
 }
