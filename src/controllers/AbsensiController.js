@@ -381,6 +381,10 @@ const addAbsensi = async (req,res) => {
         status = isWithinRadius(coord.lat, coord.lng, lokasi.latitude, lokasi.longitude, 1)
     }
 
+    if(currentDay=='MINGGU'){
+        status = 1
+    }
+
     const absensi = await Absensi.create({
         nik: nik,
         longitude: coord.lng,

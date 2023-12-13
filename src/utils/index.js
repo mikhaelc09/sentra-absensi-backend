@@ -31,7 +31,14 @@ const errmsg = (message) => {
 }
 
 const haversineDistance = (lat1, lon1, lat2, lon2) => {
-    const earthRadius = 6371; // Earth's radius in kilometers
+    const earthRadius = 6371;
+
+    const toRadians = (angle) => (angle * Math.PI) / 180;
+    lat1 = toRadians(lat1);
+    lon1 = toRadians(lon1);
+    lat2 = toRadians(lat2);
+    lon2 = toRadians(lon2);
+
     const deltaLat = lat2 - lat1;
     const deltaLon = lon2 - lon1;
   
@@ -46,6 +53,7 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
 
 const isWithinRadius = (userLat, userLon, targetLat, targetLon, radius) => {
     const distance = haversineDistance(userLat, userLon, targetLat, targetLon);
+    console.log(distance)
     return distance <= radius;
 }
 
