@@ -44,14 +44,15 @@ const getDetailIzin = async (req,res) => {
     }
     
     
-    const jenis = (izin.jenis==1) ? 'Cuti' : 'MCU'
-    const status = 'Menunggu'
-    if(izin.status==2){
-        status = 'Disetujui'
-    }
-    else if(izin.status==0){
-        status = 'Ditolak'
-    }
+    const jenis = ''
+    if(jenis==1) jenis = 'Cuti'
+    else if(jenis==2) jenis = 'MCU'
+    else if(jenis==3) jenis = 'Sakit'
+
+    const status = ''
+    if(izin.status==1) status = 'Menunggu'
+    else if(izin.status==2) status = 'Disetujui'
+    else if(izin.status==0) status = 'Ditolak'
 
     izin.dataValues.waktu_mulai = moment(izin.dataValues.waktu_mulai, 'YYYY-MM-DD').format('DD MMMM YYYY')
     izin.dataValues.waktu_selesai = moment(izin.dataValues.waktu_selesai, 'YYYY-MM-DD').format('DD MMMM YYYY')
@@ -159,7 +160,7 @@ const addIzin = async (req,res) => {
     else if(jenis==1 && !pengganti){
         return res.status(400).send(msg('Pengganti harus diisi'))
     }
-    else if(jenis==1 && !keterangan){
+    else if((jenis==1 || jenis==3) && !keterangan){
         return res.status(400).send(msg('Keterangan harus diisi'))
     }
 

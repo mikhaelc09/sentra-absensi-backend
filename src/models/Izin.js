@@ -50,7 +50,7 @@ Izin.init(
       jenis: {
         allowNull: false,
         type: DataTypes.SMALLINT,
-        comment: '1: Cuti, 2: MCU'
+        comment: '1: Cuti, 2: MCU, 3: Sakit'
       },
       signature: {
         allowNull: true,
