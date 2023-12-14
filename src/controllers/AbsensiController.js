@@ -225,7 +225,6 @@ const getLaporanKehadiran = async (req, res) => {
             let tempTgl = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').format('DD MMM YYYY')
             let numHari = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00').day()
             let tempHari = hari[numHari]
-            console.log(numHari)
             let tanggal = `${tempHari}, ${tempTgl}`
 
             let jamMasuk = moment.tz(absen.dataValues.jam_masuk, 'Asia/Jakarta').utcOffset('+07:00')
