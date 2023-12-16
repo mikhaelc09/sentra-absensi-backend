@@ -127,7 +127,7 @@ const getLaporanBulanan = async (req, res) => {
     ],
     where: {
       nik,
-      // status: 1,
+      status: 1,
       created_at: {
         [Op.between]: [startDate, endDate],
       },
@@ -231,7 +231,7 @@ const getLaporanKehadiran = async (req, res) => {
     ],
     where: {
       nik,
-      // status: 1,
+      status: 1,
       created_at: {
         [Op.between]: [startDate, endDate],
       },
