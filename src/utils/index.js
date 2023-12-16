@@ -47,8 +47,10 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
       Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
   
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const d = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
   
-    return earthRadius * c;
+    return earthRadius * d;
 }
 
 const isWithinRadius = (userLat, userLon, targetLat, targetLon, radius) => {
