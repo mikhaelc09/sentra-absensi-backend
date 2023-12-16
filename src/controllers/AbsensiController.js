@@ -109,16 +109,7 @@ const getRiwayatHarian = async (req, res) => {
   });
 };
 
-const getLaporanBulanan = async (req, res) => {
-  const nik = req.user.nik;
-
-  const now = new Date();
-  const lastMonth = now.getMonth() === 0 ? 12 : now.getMonth();
-  const lastMonthYear =
-    lastMonth === 12 ? now.getFullYear() - 1 : now.getFullYear();
-  const startDate = new Date(lastMonthYear, lastMonth - 1, 26);
-  const endDate = new Date(now.getFullYear(), now.getMonth(), 25);
-
+const fetchAbsensiOverview = async (nik, startDate, endDate) => {
   const absensi = await Absensi.findAll({
     attributes: [
       sequelize.literal(`DATE(created_at) AS date`),
@@ -139,6 +130,14 @@ const getLaporanBulanan = async (req, res) => {
       // ],
     },
     group: [sequelize.literal(`DATE(created_at)`)],
+  });
+
+  const jadwal = await Jadwal.findAll({
+    attributes: ["hari", "jam_kerja"],
+    where: {
+      nik,
+    },
+    raw: true,
   });
 
   const retAbsensi = [];
@@ -170,24 +169,31 @@ const getLaporanBulanan = async (req, res) => {
         const duration = moment.duration(jamKeluar.diff(jamMasuk));
         const hours = Math.floor(duration.asHours());
         const minutes = duration.minutes();
+        let jamWajibKerja =
+          (jadwal.find((j) => j.hari == tempHari.toUpperCase()).jam_kerja ??
+            0);
+        const menitWajibKerja = 60;
 
         jamKerja = moment({ hour: hours, minute: minutes }).format("HH:mm");
         jamMasuk = jamMasuk.format("HH:mm");
         jamKeluar = jamKeluar.format("HH:mm");
 
         //count jam kurang
-        if (numHari != 0 && hours < 7) {
-          let kurang_jam = 7 - hours;
-          let kurang_min = 60 - minutes;
-          jamKurang = moment({ hour: kurang_jam, minute: kurang_min }).format(
-            "HH:mm"
-          );
-          if (jamKurang == "Invalid date") jamKurang = "07:00";
+        jamWajibKerja--;
+        if (numHari != 0 && hours <= jamWajibKerja) {
+          let kurang_jam = jamWajibKerja - hours;
+          let kurang_min = menitWajibKerja - minutes;
+          jamKurang = moment({
+            hour: kurang_jam + Math.floor(kurang_min / 60),
+            minute: kurang_min % 60,
+          }).format("HH:mm");
+          if (jamKurang == "Invalid date") jamKurang = "--:--";
         }
 
         //count jam lebih
-        if (numHari != 0 && hours > 7) {
-          let lebih_jam = hours - 7;
+        jamWajibKerja++;
+        if (numHari != 0 && hours > jamWajibKerja) {
+          let lebih_jam = hours - jamWajibKerja;
           jamLebih = moment({ hour: lebih_jam, minute: minutes }).format(
             "HH:mm"
           );
@@ -206,6 +212,21 @@ const getLaporanBulanan = async (req, res) => {
       });
     });
   }
+
+  return retAbsensi;
+};
+
+const getLaporanBulanan = async (req, res) => {
+  const nik = req.user.nik;
+
+  const now = new Date();
+  const lastMonth = now.getMonth() === 0 ? 12 : now.getMonth();
+  const lastMonthYear =
+    lastMonth === 12 ? now.getFullYear() - 1 : now.getFullYear();
+  const startDate = new Date(lastMonthYear, lastMonth - 1, 26);
+  const endDate = new Date(now.getFullYear(), now.getMonth(), 25);
+
+  const retAbsensi = await fetchAbsensiOverview(nik, startDate, endDate);
 
   return res.status(200).send({
     laporan: retAbsensi,
@@ -223,93 +244,7 @@ const getLaporanKehadiran = async (req, res) => {
     .endOf("month")
     .format("YYYY-MM-DD HH:mm:ss");
 
-  const absensi = await Absensi.findAll({
-    attributes: [
-      sequelize.literal(`DATE(created_at) AS date`),
-      [sequelize.fn("MIN", sequelize.col("created_at")), "jam_masuk"],
-      [sequelize.fn("MAX", sequelize.col("created_at")), "jam_keluar"],
-    ],
-    where: {
-      nik,
-      status: 1,
-      created_at: {
-        [Op.between]: [startDate, endDate],
-      },
-      // [Op.and]: [
-      //     sequelize.where(
-      //         sequelize.fn('DAYOFWEEK', Sequelize.col('created_at')),
-      //         { [Op.not]: 1 }
-      //     ),
-      // ],
-    },
-    group: [sequelize.literal(`DATE(created_at)`)],
-  });
-
-  const retAbsensi = [];
-  let hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-  if (absensi.length > 0) {
-    absensi.forEach((absen) => {
-      let tempTgl = moment
-        .tz(absen.dataValues.jam_masuk, "Asia/Jakarta")
-        .utcOffset("+07:00")
-        .format("DD MMM YYYY");
-      let numHari = moment
-        .tz(absen.dataValues.jam_masuk, "Asia/Jakarta")
-        .utcOffset("+07:00")
-        .day();
-      let tempHari = hari[numHari];
-      let tanggal = `${tempHari}, ${tempTgl}`;
-
-      let jamMasuk = moment
-        .tz(absen.dataValues.jam_masuk, "Asia/Jakarta")
-        .utcOffset("+07:00");
-      let jamKeluar = moment
-        .tz(absen.dataValues.jam_keluar, "Asia/Jakarta")
-        .utcOffset("+07:00");
-
-      let jamKerja = "00:00";
-      let jamKurang = "00:00";
-      let jamLebih = "00:00";
-      if (jamMasuk != "Invalid date" && jamKeluar != "Invalid date") {
-        const duration = moment.duration(jamKeluar.diff(jamMasuk));
-        const hours = Math.floor(duration.asHours());
-        const minutes = duration.minutes();
-
-        jamKerja = moment({ hour: hours, minute: minutes }).format("HH:mm");
-        jamMasuk = jamMasuk.format("HH:mm");
-        jamKeluar = jamKeluar.format("HH:mm");
-
-        //count jam kurang
-        if (numHari != 0 && hours < 7) {
-          let kurang_jam = 7 - hours;
-          let kurang_min = 60 - minutes;
-          jamKurang = moment({ hour: kurang_jam, minute: kurang_min }).format(
-            "HH:mm"
-          );
-          if (jamKurang == "Invalid date") jamKurang = "07:00";
-        }
-
-        //count jam lebih
-        if (numHari != 0 && hours > 7) {
-          let lebih_jam = hours - 7;
-          jamLebih = moment({ hour: lebih_jam, minute: minutes }).format(
-            "HH:mm"
-          );
-        } else if (numHari == 0) {
-          jamLebih = jamKerja;
-        }
-      }
-
-      retAbsensi.push({
-        tanggal,
-        absen_masuk: jamMasuk,
-        absen_keluar: jamKeluar,
-        jam_kerja: jamKerja,
-        waktu_kurang: jamKurang,
-        waktu_lebih: jamLebih,
-      });
-    });
-  }
+  const retAbsensi = await fetchAbsensiOverview(nik, startDate, endDate);
 
   return res.status(200).send({
     laporan: retAbsensi,
