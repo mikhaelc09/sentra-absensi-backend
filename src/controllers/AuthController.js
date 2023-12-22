@@ -5,13 +5,14 @@ import nodemailer from 'nodemailer'
 import hbs from 'nodemailer-express-handlebars'
 import path from 'path'
 import * as dotenv from 'dotenv'
-import { LocalStorage } from 'node-localstorage'
 dotenv.config()
 
 import { msg } from "../utils/index.js"
+import { getLocalStorage } from "../utils/LocalStorage.js";
 import Karyawan from "../models/Karyawan.js"
 import Joi from "joi"
 import Divisi from "../models/Divisi.js"
+let localStorage = getLocalStorage()
 
 const login = async (req, res) => {
     const schema = Joi.object({
@@ -63,8 +64,8 @@ const login = async (req, res) => {
     })
 
     //save token to localStorage
-    let localStorage = new LocalStorage('./scratch')
     localStorage.setItem('token', token)
+    localStorage.setItem('nik', nik)
 
     return res.status(200).send({
         message: "Login berhasil",
@@ -79,6 +80,8 @@ const login = async (req, res) => {
 
 const logout = async (req,res) => {
     res.clearCookie("token")
+    localStorage.removeItem('token')
+    localStorage.removeItem('nik')
     return res.status(200).send(msg("Logout berhasil"))
 }
 

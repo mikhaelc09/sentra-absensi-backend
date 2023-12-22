@@ -9,12 +9,14 @@ import { isWithinRadius } from "../utils/index.js";
 dotenv.config();
 
 import { msg } from "../utils/index.js";
+import { getLocalStorage } from "../utils/LocalStorage.js";
 import Absensi from "../models/Absensi.js";
 import Jadwal from "../models/Jadwal.js";
 import Lembur from "../models/Lembur.js";
 import LokasiPenting from "../models/LokasiPenting.js";
 
 const day = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+let localStorage = getLocalStorage();
 
 const getOverview = async (req, res) => {
   const nik = req.user.nik;

@@ -2,12 +2,11 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import jwt from 'jsonwebtoken'
-import { LocalStorage } from 'node-localstorage';
-
-const localStorage = new LocalStorage('./scratch')
+import { getLocalStorage } from "../utils/LocalStorage.js";
+let localStorage = getLocalStorage()
 
 const checkToken = (req, res, next) => {
-    let token = req.headers['x-auth-token'] ?? localStorage.getItem('token')
+    let token =  localStorage.getItem('token') ?? req.headers['x-auth-token']
 
     if (!token) {
         return res.status(401).send('Unauthorized')
