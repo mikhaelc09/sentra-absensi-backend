@@ -65,7 +65,7 @@ const login = async (req, res) => {
 
     //save token to localStorage
     localStorage.setItem('token', token)
-    localStorage.setItem('nik', nik)
+    localStorage.setItem('nik', user.nik)
 
     return res.status(200).send({
         message: "Login berhasil",
