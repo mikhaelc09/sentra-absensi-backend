@@ -387,9 +387,19 @@ const addAbsensi = async (req, res) => {
     });
   }
 
-  return res.status(201).send({
-    data: absensi,
-  });
+  if(absensi.status==1){
+    return res.status(201).send({
+      data: absensi,
+    });
+  }
+  else{
+    return res.status(400).send({
+      data: absensi,
+    });
+  }
+  // return res.status(201).send({
+  //   data: absensi,
+  // });
 };
 
 export {
