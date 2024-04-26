@@ -54,13 +54,13 @@ const login = async (req, res) => {
         nama: user.nama,
         divisi: user.id_divisi
     }, process.env.JWT_SECRET, {
-        expiresIn: '1d'
+        expiresIn: '1h'
     })
 
     //save token to cookie
     res.cookie("token", token, {
         httpOnly: false,
-        expires: DateTime.now().plus({ days: 1 }).toJSDate(),
+        expires: DateTime.now().plus({ hours: 1 }).toJSDate(),
     })
 
     //save token to localStorage
